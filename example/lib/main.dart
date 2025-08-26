@@ -42,10 +42,6 @@ class _MyAppState extends State<MyApp> {
       setState(() => hyphenatedWords = hyphenateResults);
     });
 
-    Future.delayed(Duration(seconds: 2)).then((_) {
-      hyphenatorDe?.dispose();
-    });
-
     super.initState();
   }
 
