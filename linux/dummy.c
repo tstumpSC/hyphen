@@ -1,0 +1,2 @@
+// dummy.c
+void dummy() {}

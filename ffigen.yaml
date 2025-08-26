@@ -1,0 +1,14 @@
+# Run with `dart run ffigen --config ffigen.yaml`.
+name: HyphenFfiBindings
+description: |
+  Bindings for `src/hyphen_ffi.h`.
+
+  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
+output: 'lib/src/ffi/hyphen_ffi_bindings_generated.dart'
+headers:
+  entry-points:
+    - 'src/wrapper/hyphen_ffi.h'
+  include-directives:
+    - 'src/wrapper/hyphen_ffi.h'
+compiler-opts:
+  - '-Isrc'

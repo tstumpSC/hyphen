@@ -1,0 +1,9 @@
+## 0.1.0
+
+- Initial release of **Hyphen** 🎉
+- Cross-platform hyphenation for **Flutter**:
+    - **iOS, Android, macOS, Windows, Linux** via `dart:ffi`
+    - **Web** via JavaScript/WASM runtime
+- Support for both **`hnj_hyphenate2`** and **`hnj_hyphenate3`** modes
+- Utility to apply hyphenation marks and insert custom separators
+- Documentation and minimal examples included

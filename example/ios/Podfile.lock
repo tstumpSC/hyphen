@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - hyphen (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - hyphen (from `.symlinks/plugins/hyphen/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  hyphen:
+    :path: ".symlinks/plugins/hyphen/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  hyphen: 26ff41b84219382a65c471468c93d97801b63e13
+
+PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
+
+COCOAPODS: 1.16.2
