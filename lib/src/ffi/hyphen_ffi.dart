@@ -157,13 +157,13 @@ class Hyphen {
                 lhmin,
                 rhmin,
                 clhmin,
-                crhmin
+                crhmin,
               )
               : _bindings.hyphen_hyphenate2(
                 _hyphenDict,
                 wordPtr,
                 wordLen,
-                hyphens.cast<Char>()
+                hyphens.cast<Char>(),
               );
 
       if (result == 0) {

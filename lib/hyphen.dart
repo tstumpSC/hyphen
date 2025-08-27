@@ -1,4 +1,5 @@
 library;
+
 /// Public entrypoint for the `hyphen` package.
 ///
 /// Uses **conditional exports** to provide the correct implementation of
@@ -13,5 +14,6 @@ library;
 /// Consumers just `import 'package:hyphen/hyphen.dart';` and always get a
 /// `Hyphen` class appropriate for their platform.
 export 'src/hyphen_stub.dart'
-  if (dart.library.html) 'src/web/hyphen_web.dart'
-  if (dart.library.ffi) 'src/ffi/hyphen_ffi.dart' show Hyphen;
+    if (dart.library.html) 'src/web/hyphen_web.dart'
+    if (dart.library.ffi) 'src/ffi/hyphen_ffi.dart'
+    show Hyphen;

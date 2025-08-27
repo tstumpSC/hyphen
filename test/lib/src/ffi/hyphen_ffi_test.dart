@@ -17,28 +17,38 @@ void main() {
     MockBindings mockBindings = MockBindings();
 
     final path = "test/assets/test_dictionary.dic";
-    await Hyphen.fromDictionaryPathWithBindingsAndAllocator(path, mockBindings, calloc);
-    expect(mockBindings.lastLoadedPath, "${Directory.systemTemp.path}/hyph.dic");
+    await Hyphen.fromDictionaryPathWithBindingsAndAllocator(
+      path,
+      mockBindings,
+      calloc,
+    );
+    expect(
+      mockBindings.lastLoadedPath,
+      "${Directory.systemTemp.path}/hyph.dic",
+    );
 
     final loadedFile = File(mockBindings.lastLoadedPath!);
     final expectedBytes = await File(path).readAsBytes();
     expect(await loadedFile.readAsBytes(), expectedBytes);
   });
 
-  test('correctly applies hyphenation pattern that the native lib returns', () async {
-    final mockBindings = MockBindings(
-      hyphensBytesToReturn: [48, 48, 50, 49, 50, 56, 49, 54, 48, 48, 48, 48],
-    );
-    final hy = await Hyphen.fromDictionaryPathWithBindingsAndAllocator(
-      'test/assets/test_dictionary.dic',
-      mockBindings,
-      calloc,
-    );
+  test(
+    'correctly applies hyphenation pattern that the native lib returns',
+    () async {
+      final mockBindings = MockBindings(
+        hyphensBytesToReturn: [48, 48, 50, 49, 50, 56, 49, 54, 48, 48, 48, 48],
+      );
+      final hy = await Hyphen.fromDictionaryPathWithBindingsAndAllocator(
+        'test/assets/test_dictionary.dic',
+        mockBindings,
+        calloc,
+      );
 
-    final result = hy.hnjHyphenate2('Funktioniert', separator: '=');
+      final result = hy.hnjHyphenate2('Funktioniert', separator: '=');
 
-    expect(result, "Funk=tio=niert");
-  });
+      expect(result, "Funk=tio=niert");
+    },
+  );
 
   test('throws when hyphenation result is not 0', () async {
     final mockBindings = MockBindings(failsHyphenation: true);

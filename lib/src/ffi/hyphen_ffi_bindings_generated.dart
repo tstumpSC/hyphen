@@ -11,44 +11,40 @@ import 'dart:ffi' as ffi;
 class HyphenFfiBindings {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   HyphenFfiBindings(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
   HyphenFfiBindings.fromLookup(
-      ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-          lookup)
-      : _lookup = lookup;
+    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
+  ) : _lookup = lookup;
 
-  ffi.Pointer<HyphenDict$1> hyphen_load(
-    ffi.Pointer<ffi.Char> filename,
-  ) {
-    return _hyphen_load(
-      filename,
-    );
+  ffi.Pointer<HyphenDict$1> hyphen_load(ffi.Pointer<ffi.Char> filename) {
+    return _hyphen_load(filename);
   }
 
   late final _hyphen_loadPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<HyphenDict$1> Function(
-              ffi.Pointer<ffi.Char>)>>('hyphen_load');
-  late final _hyphen_load = _hyphen_loadPtr
-      .asFunction<ffi.Pointer<HyphenDict$1> Function(ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<HyphenDict$1> Function(ffi.Pointer<ffi.Char>)
+    >
+  >('hyphen_load');
+  late final _hyphen_load =
+      _hyphen_loadPtr
+          .asFunction<
+            ffi.Pointer<HyphenDict$1> Function(ffi.Pointer<ffi.Char>)
+          >();
 
-  void hyphen_free(
-    ffi.Pointer<HyphenDict$1> dict,
-  ) {
-    return _hyphen_free(
-      dict,
-    );
+  void hyphen_free(ffi.Pointer<HyphenDict$1> dict) {
+    return _hyphen_free(dict);
   }
 
   late final _hyphen_freePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<HyphenDict$1>)>>(
-          'hyphen_free');
+        'hyphen_free',
+      );
   late final _hyphen_free =
       _hyphen_freePtr.asFunction<void Function(ffi.Pointer<HyphenDict$1>)>();
 
@@ -58,21 +54,29 @@ class HyphenFfiBindings {
     int word_size,
     ffi.Pointer<ffi.Char> hyphens,
   ) {
-    return _hyphen_hyphenate2(
-      dict,
-      word,
-      word_size,
-      hyphens,
-    );
+    return _hyphen_hyphenate2(dict, word, word_size, hyphens);
   }
 
   late final _hyphen_hyphenate2Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<HyphenDict$1>, ffi.Pointer<ffi.Char>,
-              ffi.Int, ffi.Pointer<ffi.Char>)>>('hyphen_hyphenate2');
-  late final _hyphen_hyphenate2 = _hyphen_hyphenate2Ptr.asFunction<
-      int Function(ffi.Pointer<HyphenDict$1>, ffi.Pointer<ffi.Char>, int,
-          ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<
+      ffi.Int Function(
+        ffi.Pointer<HyphenDict$1>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('hyphen_hyphenate2');
+  late final _hyphen_hyphenate2 =
+      _hyphen_hyphenate2Ptr
+          .asFunction<
+            int Function(
+              ffi.Pointer<HyphenDict$1>,
+              ffi.Pointer<ffi.Char>,
+              int,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
 
   int hyphen_hyphenate3(
     ffi.Pointer<HyphenDict$1> dict,
@@ -97,19 +101,33 @@ class HyphenFfiBindings {
   }
 
   late final _hyphen_hyphenate3Ptr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(
+    ffi.NativeFunction<
+      ffi.Int Function(
+        ffi.Pointer<HyphenDict$1>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int,
+        ffi.Pointer<ffi.Char>,
+        ffi.Int,
+        ffi.Int,
+        ffi.Int,
+        ffi.Int,
+      )
+    >
+  >('hyphen_hyphenate3');
+  late final _hyphen_hyphenate3 =
+      _hyphen_hyphenate3Ptr
+          .asFunction<
+            int Function(
               ffi.Pointer<HyphenDict$1>,
               ffi.Pointer<ffi.Char>,
-              ffi.Int,
+              int,
               ffi.Pointer<ffi.Char>,
-              ffi.Int,
-              ffi.Int,
-              ffi.Int,
-              ffi.Int)>>('hyphen_hyphenate3');
-  late final _hyphen_hyphenate3 = _hyphen_hyphenate3Ptr.asFunction<
-      int Function(ffi.Pointer<HyphenDict$1>, ffi.Pointer<ffi.Char>, int,
-          ffi.Pointer<ffi.Char>, int, int, int, int)>();
+              int,
+              int,
+              int,
+              int,
+            )
+          >();
 }
 
 final class _HyphenTrans extends ffi.Struct {

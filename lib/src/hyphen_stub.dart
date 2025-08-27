@@ -30,5 +30,6 @@ class Hyphen {
     int crhmin = 3,
   }) => throw UnsupportedError('Hyphenator is not supported on this platform.');
 
-  void dispose() => throw UnsupportedError('Hyphenator is not supported on this platform.');
+  void dispose() =>
+      throw UnsupportedError('Hyphenator is not supported on this platform.');
 }

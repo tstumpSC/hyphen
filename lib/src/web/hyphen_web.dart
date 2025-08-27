@@ -59,7 +59,10 @@ class Hyphen {
   /// Loads a dictionary from the given [assetPath] into the WASM module
   /// using the provided [JsRuntimeLoader] or the default loader.
   /// Throws [InitializationException] if the dictionary could not be loaded.
-  static Future<Hyphen> fromDictionaryPath(String assetPath, {JsRuntimeLoader? loader}) async {
+  static Future<Hyphen> fromDictionaryPath(
+    String assetPath, {
+    JsRuntimeLoader? loader,
+  }) async {
     final l = loader ?? getDefaultJsLoader();
     final result = await l.load(assetPath);
     if (result.dictPointer == 0) {
@@ -70,7 +73,8 @@ class Hyphen {
 
   /// Creates a [Hyphen] with a provided [JsHyphenRuntime] and optional
   /// [dictPtr] for tests. Useful for running on Dart VM without a browser.
-  static Hyphen forTest(JsHyphenRuntime runtime, {int dictPtr = 1}) => Hyphen._(runtime, dictPtr);
+  static Hyphen forTest(JsHyphenRuntime runtime, {int dictPtr = 1}) =>
+      Hyphen._(runtime, dictPtr);
 
   /// Hyphenates [text] using the `hyphen_hyphenate2` API.
   /// Inserts [separator] at valid break positions.

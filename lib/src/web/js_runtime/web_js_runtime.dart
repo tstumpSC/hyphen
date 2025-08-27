@@ -28,9 +28,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
   /// Returns runtime and [dictPointer]
   ///
   /// Throws [InitializationException] if the dictionary cannot be loaded.
-  static Future<({WebJsHyphenRuntime runtime, int dictPointer})> initializeWithDictionary(
-    String dictionaryPath,
-  ) async {
+  static Future<({WebJsHyphenRuntime runtime, int dictPointer})>
+  initializeWithDictionary(String dictionaryPath) async {
     final resp = await http.get(Uri.parse(dictionaryPath));
     final bytes = Uint8List.view(resp.bodyBytes.buffer);
 
@@ -60,7 +59,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
 
   /// Allocates [size] bytes on the WASM heap.
   @override
-  int malloc(int size) => (_malloc(_module).callAsFunction(size.toJS) as JSNumber).toDartInt;
+  int malloc(int size) =>
+      (_malloc(_module).callAsFunction(size.toJS) as JSNumber).toDartInt;
 
   /// Frees a previously allocated pointer [ptr].
   @override
@@ -83,7 +83,14 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
             .toList()
             .toJS;
 
-    return (bound.callAsFunction(_module, fn.toJS, 'number'.toJS, jsArgTypes, jsArgs) as JSNumber)
+    return (bound.callAsFunction(
+              _module,
+              fn.toJS,
+              'number'.toJS,
+              jsArgTypes,
+              jsArgs,
+            )
+            as JSNumber)
         .toDartInt;
   }
 
@@ -91,7 +98,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
   @override
   int heapAt(int index) {
     final heapU8 = _module.getProperty('HEAPU8'.toJS) as JSObject;
-    return (heapU8.callMethod('at'.toJS, <JSAny>[index.toJS].toJS) as JSNumber).toDartInt;
+    return (heapU8.callMethod('at'.toJS, <JSAny>[index.toJS].toJS) as JSNumber)
+        .toDartInt;
   }
 
   void heapSet(int index, int value) {
@@ -102,17 +110,26 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
 
   /// Binds the module’s `ccall` function.
   static JSFunction _ccall(JSObject module) =>
-      (module.getProperty('ccall'.toJS) as JSFunction).callMethod('bind'.toJS, module)
+      (module.getProperty('ccall'.toJS) as JSFunction).callMethod(
+            'bind'.toJS,
+            module,
+          )
           as JSFunction;
 
   /// Binds the module’s `_malloc` function.
   static JSFunction _malloc(JSObject module) =>
-      (module.getProperty('_malloc'.toJS) as JSFunction).callMethod('bind'.toJS, module)
+      (module.getProperty('_malloc'.toJS) as JSFunction).callMethod(
+            'bind'.toJS,
+            module,
+          )
           as JSFunction;
 
   /// Binds the module’s `_free` function.
   static JSFunction _free(JSObject module) =>
-      (module.getProperty('_free'.toJS) as JSFunction).callMethod('bind'.toJS, module)
+      (module.getProperty('_free'.toJS) as JSFunction).callMethod(
+            'bind'.toJS,
+            module,
+          )
           as JSFunction;
 
   /// Loads the `hyphen.js` script into the page if not already present.
@@ -130,7 +147,9 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
     final completer = Completer<void>();
 
     script.onLoad.listen((_) => completer.complete());
-    script.onError.listen((e) => throw InitializationException('Failed to load hyphen.js'));
+    script.onError.listen(
+      (e) => throw InitializationException('Failed to load hyphen.js'),
+    );
 
     web.document.head!.append(script);
     return completer.future;

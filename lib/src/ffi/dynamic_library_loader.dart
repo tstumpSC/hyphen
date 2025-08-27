@@ -50,11 +50,12 @@ LibrarySpec resolveLibrarySpec(PlatformInfo p) {
   } else if (p.isAndroid) {
     return const PathLibrary('libhyphen_ffi.so');
   } else if (p.isLinux) {
-    final arch = p.version.contains('x64')
-        ? 'x64'
-        : p.version.contains('arm64')
-        ? 'arm64'
-        : (throw UnsupportedError('Unsupported Linux architecture'));
+    final arch =
+        p.version.contains('x64')
+            ? 'x64'
+            : p.version.contains('arm64')
+            ? 'arm64'
+            : (throw UnsupportedError('Unsupported Linux architecture'));
     return PathLibrary('../linux/$arch/libhyphen_ffi.so');
   } else if (p.isWindows) {
     final fname = 'hyphen_ffi.dll';
@@ -70,9 +71,11 @@ LibrarySpec resolveLibrarySpec(PlatformInfo p) {
 sealed class LibrarySpec {
   const LibrarySpec();
 }
+
 class ProcessLibrary extends LibrarySpec {
   const ProcessLibrary();
 }
+
 class PathLibrary extends LibrarySpec {
   final String path;
   const PathLibrary(this.path);
@@ -93,12 +96,20 @@ abstract class PlatformInfo {
 /// Real implementation backed by dart:io Platform.
 class IoPlatformInfo implements PlatformInfo {
   const IoPlatformInfo();
-  @override bool get isMacOS => Platform.isMacOS;
-  @override bool get isIOS => Platform.isIOS;
-  @override bool get isAndroid => Platform.isAndroid;
-  @override bool get isLinux => Platform.isLinux;
-  @override bool get isWindows => Platform.isWindows;
-  @override String get resolvedExecutable => Platform.resolvedExecutable;
-  @override String get version => Platform.version;
-  @override Map<String, String> get environment => Platform.environment;
+  @override
+  bool get isMacOS => Platform.isMacOS;
+  @override
+  bool get isIOS => Platform.isIOS;
+  @override
+  bool get isAndroid => Platform.isAndroid;
+  @override
+  bool get isLinux => Platform.isLinux;
+  @override
+  bool get isWindows => Platform.isWindows;
+  @override
+  String get resolvedExecutable => Platform.resolvedExecutable;
+  @override
+  String get version => Platform.version;
+  @override
+  Map<String, String> get environment => Platform.environment;
 }

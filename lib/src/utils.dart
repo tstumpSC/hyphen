@@ -23,15 +23,22 @@ class HyphenUtils {
   /// HyphenUtils.applyHyphenationMarks('Funktioniert',
   ///   [48,48,50,49,50,56,49,54,48,48,48,48], '='); // "Funk=tio=niert"
   /// ```
-  static String applyHyphenationMarks(String text, List<int> marks, String separator) {
-    final hyphenationMarksNumeric = convertAsciiHyphenationMarksToNumeric(marks);
+  static String applyHyphenationMarks(
+    String text,
+    List<int> marks,
+    String separator,
+  ) {
+    final hyphenationMarksNumeric = convertAsciiHyphenationMarksToNumeric(
+      marks,
+    );
 
     final sb = StringBuffer();
     final chars = text.characters; // handles grapheme clusters
     var i = 0;
     for (final ch in chars) {
       sb.write(ch);
-      if (i < hyphenationMarksNumeric.length && (hyphenationMarksNumeric[i] & 1) == 1) {
+      if (i < hyphenationMarksNumeric.length &&
+          (hyphenationMarksNumeric[i] & 1) == 1) {
         sb.write(separator);
       }
       i++;

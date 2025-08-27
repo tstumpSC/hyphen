@@ -7,4 +7,8 @@ external JSPromise<JSObject> createHyphenModule();
 external JSObject get globalThis;
 
 @JS('injectDicFile')
-external void injectDicFile(JSObject module, JSString filename, JSUint8Array data);
+external void injectDicFile(
+  JSObject module,
+  JSString filename,
+  JSUint8Array data,
+);

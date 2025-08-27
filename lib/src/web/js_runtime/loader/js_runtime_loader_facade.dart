@@ -4,4 +4,4 @@
 // - otherwise, `js_runtime_loader_stub.dart` is used.
 
 export 'js_runtime_loader_stub.dart'
-if (dart.library.js_interop) 'js_runtime_loader_web.dart';
+    if (dart.library.js_interop) 'js_runtime_loader_web.dart';

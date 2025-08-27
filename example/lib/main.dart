@@ -60,8 +60,13 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child:
               hyphenatedWords == null
-                  ? SizedBox.square(dimension: 48.0, child: CircularProgressIndicator())
-                  : Column(children: hyphenatedWords!.map((e) => Text(e)).toList()),
+                  ? SizedBox.square(
+                    dimension: 48.0,
+                    child: CircularProgressIndicator(),
+                  )
+                  : Column(
+                    children: hyphenatedWords!.map((e) => Text(e)).toList(),
+                  ),
         ),
       ),
     );

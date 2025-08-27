@@ -51,7 +51,10 @@ void main() {
   });
 
   test('macOS/iOS uses process library', () {
-    expect(resolveLibrarySpec(FakePlatform(macOS: true)), isA<ProcessLibrary>());
+    expect(
+      resolveLibrarySpec(FakePlatform(macOS: true)),
+      isA<ProcessLibrary>(),
+    );
     expect(resolveLibrarySpec(FakePlatform(iOS: true)), isA<ProcessLibrary>());
   });
 
@@ -61,12 +64,16 @@ void main() {
   });
 
   test('Linux x64 path', () {
-    final spec = resolveLibrarySpec(FakePlatform(linux: true, version: 'Dart VM 3.5.0 (x64)'));
+    final spec = resolveLibrarySpec(
+      FakePlatform(linux: true, version: 'Dart VM 3.5.0 (x64)'),
+    );
     expect((spec as PathLibrary).path, '../linux/x64/libhyphen_ffi.so');
   });
 
   test('Linux arm64 path', () {
-    final spec = resolveLibrarySpec(FakePlatform(linux: true, version: 'Dart VM (arm64)'));
+    final spec = resolveLibrarySpec(
+      FakePlatform(linux: true, version: 'Dart VM (arm64)'),
+    );
     expect((spec as PathLibrary).path, '../linux/arm64/libhyphen_ffi.so');
   });
 

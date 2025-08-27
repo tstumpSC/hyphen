@@ -7,7 +7,9 @@ import 'js_runtime_loader.dart';
 /// This makes test/VM builds fail fast if someone tries to call into it.
 class _StubLoader implements JsRuntimeLoader {
   @override
-  Future<({JsHyphenRuntime runtime, int dictPointer})> load(String assetPath) async {
+  Future<({JsHyphenRuntime runtime, int dictPointer})> load(
+    String assetPath,
+  ) async {
     throw UnsupportedError('Web runtime not available on this platform.');
   }
 }
