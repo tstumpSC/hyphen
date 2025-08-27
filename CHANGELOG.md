@@ -1,3 +1,7 @@
+## 0.1.1
+- Removed unnecessary analysis options
+- Fixed warnings caused by using "<>" in doc comments
+
 ## 0.1.0
 
 - Initial release of **Hyphen** 🎉
