@@ -5,9 +5,9 @@ import 'dart:io';
 /// This file centralizes how the plugin decides which native library to load:
 /// – macOS / iOS → [ProcessLibrary] (symbols linked into process).
 /// – Android     → [PathLibrary]('libhyphen_ffi.so') (NDK loader handles lookup).
-/// – Linux       → [PathLibrary]('../linux/<arch>/libhyphen_ffi.so'), with
+/// – Linux       → [PathLibrary]('../linux/$arch/libhyphen_ffi.so'), with
 ///                 `<arch>` detected from [PlatformInfo.version] (x64/arm64).
-/// – Windows     → [PathLibrary]('<exeDir>/hyphen_ffi.dll'), side-by-side DLL.
+/// – Windows     → [PathLibrary]('$exeDir/hyphen_ffi.dll'), side-by-side DLL.
 /// – Env override: if HYF_LIB_PATH is set, that path always wins.
 ///
 /// The [LibrarySpec] sealed class describes what to open:

@@ -6,6 +6,8 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -57,9 +59,9 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         body: Center(
           child:
-          hyphenatedWords == null
-              ? SizedBox.square(dimension: 48.0, child: CircularProgressIndicator())
-              : Column(children: hyphenatedWords!.map((e) => Text(e)).toList()),
+              hyphenatedWords == null
+                  ? SizedBox.square(dimension: 48.0, child: CircularProgressIndicator())
+                  : Column(children: hyphenatedWords!.map((e) => Text(e)).toList()),
         ),
       ),
     );
