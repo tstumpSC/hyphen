@@ -1,3 +1,6 @@
+## 0.1.2
+- Fixed formatting issues
+
 ## 0.1.1
 - Removed unnecessary analysis options
 - Fixed warnings caused by using "<>" in doc comments
