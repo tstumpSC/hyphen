@@ -1,3 +1,6 @@
+## 0.1.3
+- Added support for UTF-8-encoded dictionary files
+
 ## 0.1.2
 - Fixed formatting issues
 

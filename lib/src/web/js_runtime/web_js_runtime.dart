@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
@@ -28,7 +29,9 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
   /// Returns runtime and [dictPointer]
   ///
   /// Throws [InitializationException] if the dictionary cannot be loaded.
-  static Future<({WebJsHyphenRuntime runtime, int dictPointer})>
+  static Future<
+    ({WebJsHyphenRuntime runtime, int dictPointer, DictEncoding dictEncoding})
+  >
   initializeWithDictionary(String dictionaryPath) async {
     final resp = await http.get(Uri.parse(dictionaryPath));
     final bytes = Uint8List.view(resp.bodyBytes.buffer);
@@ -39,6 +42,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
 
     final fileName = '/${p.basename(dictionaryPath)}';
     injectDicFile(module, fileName.toJS, JSUint8Array(bytes.buffer.toJS));
+
+    final dictEncoding = _parseDicEncodingFromBytes(bytes);
 
     final dictPointer =
         (_ccall(module).callAsFunction(
@@ -54,7 +59,25 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
     if (dictPointer == 0) {
       throw InitializationException('Dictionary could not be loaded');
     }
-    return (runtime: WebJsHyphenRuntime._(module), dictPointer: dictPointer);
+    return (
+      runtime: WebJsHyphenRuntime._(module),
+      dictPointer: dictPointer,
+      dictEncoding: dictEncoding,
+    );
+  }
+
+  static DictEncoding _parseDicEncodingFromBytes(Uint8List bytes) {
+    int nl = bytes.indexOf(0x0A);
+    int end = (nl >= 0) ? nl : bytes.length;
+    if (end > 0 && bytes[end - 1] == 0x0D) end--;
+
+    final header =
+        ascii
+            .decode(bytes.sublist(0, end), allowInvalid: true)
+            .trim()
+            .toUpperCase();
+
+    return DictEncoding.fromString(header);
   }
 
   /// Allocates [size] bytes on the WASM heap.
@@ -102,9 +125,10 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
         .toDartInt;
   }
 
+  /// Writes a single byte into the WebAssembly heap.
+  @override
   void heapSet(int index, int value) {
     final heapU8 = _module.getProperty('HEAPU8'.toJS) as JSObject;
-    // assign into the typed array: heapU8[index] = value
     heapU8.setProperty(index.toString().toJS, value.toJS);
   }
 

@@ -25,5 +25,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
+    'OTHER_CFLAGS' => '-Wno-shorten-64-to-32 -Wno-sign-conversion -Wno-implicit-int-conversion',
+    'GCC_WARN_64_TO_32_BIT_CONVERSION' => 'NO'
   }
 end

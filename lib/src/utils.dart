@@ -72,3 +72,20 @@ class InitializationException implements Exception {
   @override
   String toString() => 'Error while initializing Hyphenator: $cause';
 }
+
+enum DictEncoding {
+  utf8,
+  iso8859;
+
+  static DictEncoding fromString(String encodingString) {
+    if (encodingString == "UTF-8") {
+      return DictEncoding.utf8;
+    } else if (encodingString == "ISO8859-1") {
+      return DictEncoding.iso8859;
+    } else {
+      throw Exception(
+        "Unsupported dictionary encoding: $encodingString. Only UTF-8 and ISO8859-1 are supported.",
+      );
+    }
+  }
+}

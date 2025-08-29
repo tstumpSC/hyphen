@@ -41,6 +41,9 @@ class FakeRuntime implements JsHyphenRuntime {
   void dispose(int dictPointer) {
     wasDisposeCalled = true;
   }
+
+  @override
+  void heapSet(int index, int value) {}
 }
 
 void main() {

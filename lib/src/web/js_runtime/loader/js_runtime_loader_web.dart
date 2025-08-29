@@ -1,3 +1,5 @@
+import 'package:hyphen/src/utils.dart';
+
 import '../js_runtime.dart';
 import '../web_js_runtime.dart';
 import 'js_runtime_loader.dart';
@@ -7,9 +9,11 @@ import 'js_runtime_loader.dart';
 /// Creates a [WebJsHyphenRuntime] and loads the dictionary at [assetPath].
 class _WebLoader implements JsRuntimeLoader {
   @override
-  Future<({JsHyphenRuntime runtime, int dictPointer})> load(
-    String assetPath,
-  ) async => await WebJsHyphenRuntime.initializeWithDictionary(assetPath);
+  Future<
+    ({JsHyphenRuntime runtime, int dictPointer, DictEncoding dictEncoding})
+  >
+  load(String assetPath) async =>
+      await WebJsHyphenRuntime.initializeWithDictionary(assetPath);
 }
 
 /// Returns the default runtime loader for the current platform.

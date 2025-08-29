@@ -25,6 +25,8 @@ class _MyAppState extends State<MyApp> {
     "arbeiten",
     "hineinschauen",
     "vorankommen",
+    "schwören",
+    "schworen",
   ];
 
   List<String>? hyphenatedWords;
@@ -32,12 +34,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // You need to provide your own .dic file here
-    Hyphen.fromDictionaryPath("assets/hyph_de_DE.dic").then((hyphenator) {
+    Hyphen.fromDictionaryPath("assets/hyph_de_DE_UTF.dic").then((hyphenator) {
       hyphenatorDe = hyphenator;
 
       List<String> hyphenateResults = [];
       for (String word in words) {
-        final result = hyphenatorDe!.hnjHyphenate3(word);
+        final result = hyphenatorDe!.hnjHyphenate2(word);
         hyphenateResults.add(result);
       }
 

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
@@ -55,8 +57,14 @@ class Hyphen {
   late Pointer<HyphenDict> _hyphenDict;
   final HyphenFfiBindings _bindings;
   final Allocator _allocator;
+  final DictEncoding _dictEncoding;
 
-  Hyphen._(this._hyphenDict, this._bindings, this._allocator);
+  Hyphen._(
+    this._hyphenDict,
+    this._bindings,
+    this._allocator,
+    this._dictEncoding,
+  );
 
   static Future<Hyphen> _fromDictionaryPathInternal(
     String path,
@@ -64,6 +72,7 @@ class Hyphen {
     Allocator allocator,
   ) async {
     String filePath = await _prepareDictFile(path);
+    final encoding = await _readDicEncoding(filePath);
 
     final utf8Bytes = filePath.toNativeUtf8();
     final pathPtr = utf8Bytes.cast<Char>();
@@ -73,7 +82,7 @@ class Hyphen {
     if (dict == nullptr) {
       throw InitializationException("Dictionary could not be loaded");
     }
-    return Hyphen._(dict, bindings, allocator);
+    return Hyphen._(dict, bindings, allocator, encoding);
   }
 
   /// Loads a dictionary from the given [path] using the real
@@ -91,6 +100,30 @@ class Hyphen {
     Allocator allocator,
   ) async {
     return _fromDictionaryPathInternal(path, bindings, allocator);
+  }
+
+  /// Reads out the first line of the Dictionary file, which contains the encoding (UTF-8 or ISO8859-1)
+  static Future<DictEncoding> _readDicEncoding(
+    String path, {
+    int maxProbeBytes = 512,
+  }) async {
+    final stream = File(path).openRead(0, maxProbeBytes);
+    final bytes = await stream
+        .fold<BytesBuilder>(BytesBuilder(), (b, chunk) => b..add(chunk))
+        .then((b) => b.toBytes());
+
+    // Find newline (\n); handle optional \r before it.
+    int nl = bytes.indexOf(0x0A); // \n
+    int end = (nl >= 0) ? nl : bytes.length;
+    if (end > 0 && bytes[end - 1] == 0x0D) end--; // strip \r
+
+    final firstLineBytes = Uint8List.sublistView(bytes, 0, end);
+    // Header is ASCII; allowInvalid guards against any odd bytes.
+    final header = ascii.decode(firstLineBytes, allowInvalid: true).trim();
+    if (header.isEmpty) {
+      throw FormatException('Empty encoding header in $path');
+    }
+    return DictEncoding.fromString(header);
   }
 
   static Future<String> _prepareDictFile(String assetPath) async {
@@ -140,11 +173,23 @@ class Hyphen {
     int clhmin = 2,
     int crhmin = 3,
   }) {
-    final utf8Bytes = text.toNativeUtf8();
-    final wordPtr = utf8Bytes.cast<Char>();
-    final wordLen = utf8Bytes.length;
+    final bytes =
+        (_dictEncoding == DictEncoding.utf8)
+            ? utf8.encode(text)
+            : latin1.encode(text);
 
-    final hyphens = _allocator.allocate<Int8>((wordLen + 8) * sizeOf<Int8>());
+    final wordBuf = _allocator.allocate<Uint8>(
+      (bytes.length + 1) * sizeOf<Uint8>(),
+    );
+    wordBuf.asTypedList(bytes.length).setAll(0, bytes);
+    wordBuf[bytes.length] = 0;
+
+    final hyphens = _allocator.allocate<Int8>(
+      (bytes.length + 8) * sizeOf<Int8>(),
+    );
+
+    final wordPtr = wordBuf.cast<Char>();
+    final wordLen = bytes.length;
 
     try {
       final result =
@@ -174,7 +219,7 @@ class Hyphen {
         throw Exception("Hyphenation failed with code $result");
       }
     } finally {
-      _allocator.free(utf8Bytes);
+      _allocator.free(wordBuf);
       _allocator.free(hyphens);
     }
   }

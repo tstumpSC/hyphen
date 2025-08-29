@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:hyphen/src/utils.dart';
 
 import 'js_runtime/js_runtime.dart';
@@ -53,8 +54,9 @@ import 'js_runtime/loader/js_runtime_loader_facade.dart';
 class Hyphen {
   final JsHyphenRuntime _runtime;
   int _dictPtr;
+  final DictEncoding _dictEncoding;
 
-  Hyphen._(this._runtime, this._dictPtr);
+  Hyphen._(this._runtime, this._dictPtr, this._dictEncoding);
 
   /// Loads a dictionary from the given [assetPath] into the WASM module
   /// using the provided [JsRuntimeLoader] or the default loader.
@@ -68,13 +70,13 @@ class Hyphen {
     if (result.dictPointer == 0) {
       throw InitializationException('Dictionary could not be loaded');
     }
-    return Hyphen._(result.runtime, result.dictPointer);
+    return Hyphen._(result.runtime, result.dictPointer, result.dictEncoding);
   }
 
   /// Creates a [Hyphen] with a provided [JsHyphenRuntime] and optional
   /// [dictPtr] for tests. Useful for running on Dart VM without a browser.
   static Hyphen forTest(JsHyphenRuntime runtime, {int dictPtr = 1}) =>
-      Hyphen._(runtime, dictPtr);
+      Hyphen._(runtime, dictPtr, DictEncoding.iso8859);
 
   /// Hyphenates [text] using the `hyphen_hyphenate2` API.
   /// Inserts [separator] at valid break positions.
@@ -118,49 +120,99 @@ class Hyphen {
     int clhmin = 2,
     int crhmin = 3,
   }) {
-    final wordSize = utf8.encode(text).length;
+    if (_dictEncoding == DictEncoding.utf8) {
+      final wordSize = utf8.encode(text).length;
 
-    final hyphensPtr = _runtime.malloc(wordSize + 8);
+      final hyphensPtr = _runtime.malloc(wordSize + 8);
 
-    try {
-      final result = _runtime.ccall(
-        useV3 ? 'hyphen_hyphenate3' : 'hyphen_hyphenate2',
-        [
-          'number', // dictPtr
-          'string', // text
-          'number', // wordSize
-          'number', // hyphensPtr
-          if (useV3) ...[
-            'number', // lhmin
-            'number', // rhmin
-            'number', // clhmin
-            'number', // crhmin
+      try {
+        final result = _runtime.ccall(
+          useV3 ? 'hyphen_hyphenate3' : 'hyphen_hyphenate2',
+          [
+            'number', // dictPtr
+            'string', // text
+            'number', // wordSize
+            'number', // hyphensPtr
+            if (useV3) ...[
+              'number', // lhmin
+              'number', // rhmin
+              'number', // clhmin
+              'number', // crhmin
+            ],
           ],
-        ],
-        [
-          _dictPtr,
-          text,
-          wordSize,
-          hyphensPtr,
-          if (useV3) ...[lhmin, rhmin, clhmin, crhmin],
-        ],
-      );
+          [
+            _dictPtr,
+            text,
+            wordSize,
+            hyphensPtr,
+            if (useV3) ...[lhmin, rhmin, clhmin, crhmin],
+          ],
+        );
 
-      if (result != 0) {
-        throw Exception('Hyphenation failed with code $result');
+        if (result != 0) {
+          throw Exception('Hyphenation failed with code $result');
+        }
+
+        // Read marks from the runtime’s heap (ASCII digits or numeric bytes).
+        final marks = <int>[];
+        for (var i = 0; i < wordSize; i++) {
+          final b = _runtime.heapAt(hyphensPtr + i);
+          if (b == 0) break; // stop at NUL
+          marks.add(b);
+        }
+
+        return HyphenUtils.applyHyphenationMarks(text, marks, separator);
+      } finally {
+        _runtime.free(hyphensPtr);
       }
+    } else {
+      final wordBytes = Uint8List.fromList(latin1.encode(text));
+      final wordSize = wordBytes.length;
+      final wordPtr = _runtime.malloc(wordSize + 1);
 
-      // Read marks from the runtime’s heap (ASCII digits or numeric bytes).
-      final rawMarks = <int>[];
       for (var i = 0; i < wordSize; i++) {
-        final b = _runtime.heapAt(hyphensPtr + i);
-        if (b == 0) break; // stop at NUL
-        rawMarks.add(b);
+        _runtime.heapSet(wordPtr + i, wordBytes[i]);
       }
+      _runtime.heapSet(wordPtr + wordSize, 0);
+      final hyphensPtr = _runtime.malloc(wordSize + 8);
 
-      return HyphenUtils.applyHyphenationMarks(text, rawMarks, separator);
-    } finally {
-      _runtime.free(hyphensPtr);
+      try {
+        final result = _runtime.ccall(
+          useV3 ? 'hyphen_hyphenate3' : 'hyphen_hyphenate2',
+          [
+            'number', // dictPtr
+            'number', // wordPtr
+            'number', // wordLen
+            'number',
+            if (useV3) ...[
+              'number', // lhmin
+              'number', // rhmin
+              'number', // clhmin
+              'number', // crhmin
+            ],
+          ],
+          [
+            _dictPtr,
+            wordPtr,
+            wordSize,
+            hyphensPtr,
+            if (useV3) ...[lhmin, rhmin, clhmin, crhmin],
+          ],
+        );
+
+        if (result != 0) {
+          throw Exception('Hyphenation failed with code $result');
+        }
+
+        final marks = List<int>.generate(
+          wordSize,
+          (i) => _runtime.heapAt(hyphensPtr + i),
+        );
+        return HyphenUtils.applyHyphenationMarks(text, marks, separator);
+      } finally {
+        _runtime.free(wordPtr);
+        _runtime.free(hyphensPtr);
+      }
     }
   }
 

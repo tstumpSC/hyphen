@@ -24,5 +24,8 @@ abstract class JsHyphenRuntime {
   /// Reads a single byte at [index] from the module’s heap (`HEAPU8`).
   int heapAt(int index);
 
+  /// Writes a single byte into the module's heap.
+  void heapSet(int index, int value);
+
   void dispose(int dictPointer);
 }

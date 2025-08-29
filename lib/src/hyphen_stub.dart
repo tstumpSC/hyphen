@@ -6,6 +6,8 @@
 ///
 /// All methods throw [UnsupportedError].
 class Hyphen {
+  Hyphen._();
+
   /// Attempts to create a [Hyphen] from the given dictionary path.
   ///
   /// Always throws [UnsupportedError] on this platform.

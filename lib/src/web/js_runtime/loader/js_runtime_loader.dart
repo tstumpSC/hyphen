@@ -1,3 +1,5 @@
+import 'package:hyphen/src/utils.dart';
+
 import '../js_runtime.dart';
 
 /// Abstraction for loading a [JsHyphenRuntime] and its associated
@@ -11,5 +13,8 @@ abstract class JsRuntimeLoader {
   ///
   /// Returns a tuple `(JsHyphenRuntime runtime, int dictPtr)`.
   /// Throws an exception if the dictionary cannot be loaded.
-  Future<({JsHyphenRuntime runtime, int dictPointer})> load(String assetPath);
+  Future<
+    ({JsHyphenRuntime runtime, int dictPointer, DictEncoding dictEncoding})
+  >
+  load(String assetPath);
 }
