@@ -1,7 +1,3 @@
-#
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint hyphen_ffi.podspec` to validate before publishing.
-#
 Pod::Spec.new do |s|
   s.name             = 'hyphen'
   s.version          = '0.0.1'

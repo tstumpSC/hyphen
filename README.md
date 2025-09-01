@@ -28,7 +28,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.1.3
+  hyphen: ^0.1.4
 ```
 
 Then run:
@@ -41,19 +41,44 @@ flutter pub get
 
 ## 📚 Dictionaries
 
-`Hyphen` requires a `.dic` file for the language you want to hyphenate.  
+`Hyphen` requires a `.dic` file for the language you want to hyphenate.\
 These are not bundled due to licensing reasons.
 
-👉 For instructions on how to obtain dictionary-files, see
-[hunspell/hyphen](https://github.com/hunspell/hyphen)
+👉 You need to generate or obtain these `.dic` files yourself.
 
-Place your dictionary in your Flutter project under `assets/`, and declare it in `pubspec.yaml`:
+### Where to get dictionary files
 
-```yaml
-flutter:
-  assets:
-    - assets/hyph_en_US.dic
-```
+Hyphenation dictionaries are created from **TeX hyphenation pattern
+files** (commonly available on [CTAN](https://ctan.org/tex-archive/language/hyph-utf8)
+and other TeX distribution sources).
+
+------------------------------------------------------------------------
+
+### 🔨 Step-by-step Example: English (US)
+
+1.  Download the pattern file
+    [`hyphen-en-us.tex`](https://satztexnik.com/tex-archive/language/hyph-utf8/tex/patterns/tex/hyph-en-us.tex)
+
+2.  Run the `substrings.pl` script (from
+    [hunspell/hyphen](https://github.com/hunspell/hyphen)):
+
+    ``` bash
+    perl substrings.pl hyphen-en-us.tex hyph_en_US.dic UTF-8
+    ```
+
+    This generates a file called `hyph_en_US.dic`.
+
+3.  Add the file to your Flutter project:
+
+        assets/hyph_en_US.dic
+
+4.  Declare it in `pubspec.yaml`:
+
+    ``` yaml
+    flutter:
+      assets:
+        - assets/hyph_en_US.dic
+    ```
 
 ---
 

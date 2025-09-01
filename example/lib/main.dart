@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Hyphen? hyphenatorDe;
+  Hyphen? hyphenDe;
 
   final List<String> words = [
     "funktioniert",
@@ -34,12 +34,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     // You need to provide your own .dic file here
-    Hyphen.fromDictionaryPath("assets/hyph_de_DE_UTF.dic").then((hyphenator) {
-      hyphenatorDe = hyphenator;
+    Hyphen.fromDictionaryPath("assets/hyph_de_DE_UTF.dic").then((hyphen) {
+      hyphenDe = hyphen;
 
       List<String> hyphenateResults = [];
       for (String word in words) {
-        final result = hyphenatorDe!.hnjHyphenate2(word);
+        final result = hyphenDe!.hnjHyphenate2(word);
         hyphenateResults.add(result);
       }
 
@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    hyphenatorDe?.dispose();
+    hyphenDe?.dispose();
     super.dispose();
   }
 

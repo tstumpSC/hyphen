@@ -1,3 +1,7 @@
+## 0.1.4
+- Added more detailed instructions on how to obtain dictionary files
+- Removed any mentions of "Hyphenator" (which was the plugin's working title)
+
 ## 0.1.3
 - Added support for UTF-8-encoded dictionary files
 

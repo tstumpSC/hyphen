@@ -70,7 +70,7 @@ class InitializationException implements Exception {
   InitializationException(this.cause);
 
   @override
-  String toString() => 'Error while initializing Hyphenator: $cause';
+  String toString() => 'Error while initializing Hyphen: $cause';
 }
 
 enum DictEncoding {

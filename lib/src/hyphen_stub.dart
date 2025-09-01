@@ -12,13 +12,13 @@ class Hyphen {
   ///
   /// Always throws [UnsupportedError] on this platform.
   static Future<Hyphen> fromDictionaryPath(String assetPath) async =>
-      throw UnsupportedError('Hyphenator is not supported on this platform.');
+      throw UnsupportedError('Hyphen is not supported on this platform.');
 
   /// Attempts to hyphenate [text] using hyphenate2 rules.
   ///
   /// Always throws [UnsupportedError] on this platform.
   String hnjHyphenate2(String text, {String separator = "="}) =>
-      throw UnsupportedError('Hyphenator is not supported on this platform.');
+      throw UnsupportedError('Hyphen is not supported on this platform.');
 
   /// Attempts to hyphenate [text] using hyphenate3 rules.
   ///
@@ -30,8 +30,8 @@ class Hyphen {
     int rhmin = 3,
     int clhmin = 2,
     int crhmin = 3,
-  }) => throw UnsupportedError('Hyphenator is not supported on this platform.');
+  }) => throw UnsupportedError('Hyphen is not supported on this platform.');
 
   void dispose() =>
-      throw UnsupportedError('Hyphenator is not supported on this platform.');
+      throw UnsupportedError('Hyphen is not supported on this platform.');
 }
