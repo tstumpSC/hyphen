@@ -36,9 +36,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
     final resp = await http.get(Uri.parse(dictionaryPath));
     final bytes = Uint8List.view(resp.bodyBytes.buffer);
 
-    await _loadHyphenScript();
-
-    final module = await createHyphenModule().toDart;
+    await HyphenScriptLoader.load();
+    final module = await HyphenModule.instance();
 
     final fileName = '/${p.basename(dictionaryPath)}';
     injectDicFile(module, fileName.toJS, JSUint8Array(bytes.buffer.toJS));
@@ -156,29 +155,6 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
           )
           as JSFunction;
 
-  /// Loads the `hyphen.js` script into the page if not already present.
-  static Future<void> _loadHyphenScript() async {
-    // Check if hyphen.js has already been loaded
-    if (web.document.querySelector('script[src*="assets/hyphen.js"]') != null) {
-      return;
-    }
-
-    final script =
-        web.HTMLScriptElement()
-          ..src = 'assets/packages/hyphen/web/assets/hyphen.js'
-          ..type = 'application/javascript';
-
-    final completer = Completer<void>();
-
-    script.onLoad.listen((_) => completer.complete());
-    script.onError.listen(
-      (e) => throw InitializationException('Failed to load hyphen.js'),
-    );
-
-    web.document.head!.append(script);
-    return completer.future;
-  }
-
   @override
   void dispose(int dictPointer) {
     _ccall(_module).callAsFunction(
@@ -188,5 +164,88 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
       ['number'.toJS].toJS,
       [dictPointer.toJS].toJS,
     );
+  }
+}
+
+/// Loads the Emscripten `hyphen.js` script once and ensures that
+/// the global `createHyphenModule` factory is available.
+class HyphenScriptLoader {
+  static Future<void>? _pendingInjection;
+
+  static Future<void> load() {
+    if (_isAlreadyLoaded()) return Future.value();
+    return _pendingInjection ??= _injectAndWait();
+  }
+
+  static bool _isAlreadyLoaded() {
+    final v = globalContext.getProperty('createHyphenModule'.toJS);
+    return v != null && v is JSFunction;
+  }
+
+  static Future<void> _injectAndWait() {
+    final c = Completer<void>();
+
+    final script =
+        web.HTMLScriptElement()
+          ..src = 'assets/packages/hyphen/web/assets/hyphen.js'
+          ..type = 'text/javascript';
+
+    // NOTE: convert Dart closures to JSFunction with .toJS
+    script.addEventListener(
+      'load',
+      (JSAny? _) {
+        if (_isAlreadyLoaded()) {
+          c.complete();
+        } else {
+          c.completeError(
+            StateError('createHyphenModule not found after hyphen.js load'),
+          );
+        }
+      }.toJS,
+    );
+
+    script.addEventListener(
+      'error',
+      (JSAny? _) {
+        c.completeError(StateError('Failed to load hyphen.js'));
+      }.toJS,
+    );
+
+    web.document.head!.append(script);
+    return c.future;
+  }
+}
+
+/// Wraps the `createHyphenModule` factory to guarantee that the
+/// module is only instantiated once and shared across callers.
+class HyphenModule {
+  HyphenModule._();
+
+  static JSObject? _module;
+  static Future<JSObject>? _pendingInstance;
+
+  static Future<JSObject> instance() {
+    if (_module != null) {
+      return Future.value(_module);
+    }
+    if (_pendingInstance != null) {
+      return _pendingInstance!;
+    }
+
+    _pendingInstance = _create();
+    return _pendingInstance!;
+  }
+
+  static Future<JSObject> _create() async {
+    try {
+      final module = await createHyphenModule().toDart;
+      _module = module;
+      return module;
+    } catch (e) {
+      _pendingInstance = null;
+      rethrow;
+    } finally {
+      _pendingInstance = null;
+    }
   }
 }
