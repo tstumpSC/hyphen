@@ -11,7 +11,7 @@ ENVIRONMENT="${ENVIRONMENT:-web}"                 # web / worker / node / combin
 EXPORT_NAME="${EXPORT_NAME:-createHyphenModule}"  # JS factory name
 
 # Emscripten exports
-EXPORTED_FUNCTIONS='["_hyphen_load","_hyphen_free","_hyphen_hyphenate2","_hyphen_hyphenate3","_malloc","_free"]'
+EXPORTED_FUNCTIONS='["_hyphen_load","_hyphen_free","_hyphen_hyphenate2","_hyphen_hyphenate3","_malloc","_free", "_hyphen_dict_get_utf8"]'
 EXPORTED_RUNTIME_METHODS='["cwrap", "ccall", "UTF8ToString", "stringToUTF8", "getValue", "setValue", "FS", "lengthBytesUTF8", "HEAPU8", "HEAPU32"]'
 
 # ====== Checks & prep ======

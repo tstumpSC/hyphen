@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
@@ -71,14 +70,16 @@ class Hyphen {
   static Future<Hyphen> _fromDictionaryPathInternal(
     String path,
     HyphenFfiBindings bindings,
-    Allocator allocator,
-  ) async {
+    Allocator allocator, {
+    DictEncoding? encodingOverride,
+  }) async {
     String filePath = await _prepareDictFile(path);
-    final encoding = await _readDicEncoding(filePath);
 
     final utf8Bytes = filePath.toNativeUtf8();
     final pathPtr = utf8Bytes.cast<Char>();
     final dict = bindings.hyphen_load(pathPtr);
+    final encoding =
+        encodingOverride ?? DictEncoding.fromUtf8IntValue(dict.ref.utf8);
     allocator.free(utf8Bytes);
 
     if (dict == nullptr) {
@@ -100,37 +101,19 @@ class Hyphen {
     String path,
     HyphenFfiBindings bindings,
     Allocator allocator,
+    DictEncoding encoding,
   ) async {
-    return _fromDictionaryPathInternal(path, bindings, allocator);
-  }
-
-  /// Reads out the first line of the Dictionary file, which contains the encoding (UTF-8 or ISO8859-1)
-  static Future<DictEncoding> _readDicEncoding(
-    String path, {
-    int maxProbeBytes = 512,
-  }) async {
-    final stream = File(path).openRead(0, maxProbeBytes);
-    final bytes = await stream
-        .fold<BytesBuilder>(BytesBuilder(), (b, chunk) => b..add(chunk))
-        .then((b) => b.toBytes());
-
-    // Find newline (\n); handle optional \r before it.
-    int nl = bytes.indexOf(0x0A); // \n
-    int end = (nl >= 0) ? nl : bytes.length;
-    if (end > 0 && bytes[end - 1] == 0x0D) end--; // strip \r
-
-    final firstLineBytes = Uint8List.sublistView(bytes, 0, end);
-    // Header is ASCII; allowInvalid guards against any odd bytes.
-    final header = ascii.decode(firstLineBytes, allowInvalid: true).trim();
-    if (header.isEmpty) {
-      throw FormatException('Empty encoding header in $path');
-    }
-    return DictEncoding.fromString(header);
+    return _fromDictionaryPathInternal(
+      path,
+      bindings,
+      allocator,
+      encodingOverride: encoding,
+    );
   }
 
   static Future<String> _prepareDictFile(String assetPath) async {
     final data = await rootBundle.load(assetPath);
-    final file = File('${Directory.systemTemp.path}/hyph.dic');
+    final file = File('${Directory.systemTemp.path}/hyph_${data.hashCode}.dic');
     await file.writeAsBytes(data.buffer.asUint8List());
     return file.path;
   }

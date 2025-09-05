@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
+import 'dart:js_interop_unsafe' as js_unsafe;
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
@@ -39,10 +38,8 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
     await HyphenScriptLoader.load();
     final module = await HyphenModule.instance();
 
-    final fileName = '/${p.basename(dictionaryPath)}';
+    final fileName = "/${p.basename(dictionaryPath)}_${bytes.hashCode}";
     injectDicFile(module, fileName.toJS, JSUint8Array(bytes.buffer.toJS));
-
-    final dictEncoding = _parseDicEncodingFromBytes(bytes);
 
     final dictPointer =
         (_ccall(module).callAsFunction(
@@ -55,6 +52,18 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
                 as JSNumber)
             .toDartInt;
 
+    final dictEncoding = DictEncoding.fromUtf8IntValue(
+      (_ccall(module).callAsFunction(
+                module,
+                "hyphen_dict_get_utf8".toJS,
+                'number'.toJS,
+                ['number'.toJS].toJS,
+                [dictPointer.toJS].toJS,
+              )
+              as JSNumber)
+          .toDartInt,
+    );
+
     if (dictPointer == 0) {
       throw InitializationException('Dictionary could not be loaded');
     }
@@ -63,20 +72,6 @@ class WebJsHyphenRuntime implements JsHyphenRuntime {
       dictPointer: dictPointer,
       dictEncoding: dictEncoding,
     );
-  }
-
-  static DictEncoding _parseDicEncodingFromBytes(Uint8List bytes) {
-    int nl = bytes.indexOf(0x0A);
-    int end = (nl >= 0) ? nl : bytes.length;
-    if (end > 0 && bytes[end - 1] == 0x0D) end--;
-
-    final header =
-        ascii
-            .decode(bytes.sublist(0, end), allowInvalid: true)
-            .trim()
-            .toUpperCase();
-
-    return DictEncoding.fromString(header);
   }
 
   /// Allocates [size] bytes on the WASM heap.
@@ -178,8 +173,7 @@ class HyphenScriptLoader {
   }
 
   static bool _isAlreadyLoaded() {
-    final v = globalContext.getProperty('createHyphenModule'.toJS);
-    return v != null && v is JSFunction;
+    return _createHyphenModuleRef != null;
   }
 
   static Future<void> _injectAndWait() {
@@ -249,3 +243,6 @@ class HyphenModule {
     }
   }
 }
+
+@JS('createHyphenModule')
+external JSAny? get _createHyphenModuleRef;

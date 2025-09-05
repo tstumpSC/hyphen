@@ -105,14 +105,16 @@ enum DictEncoding {
   utf8,
   iso8859;
 
-  static DictEncoding fromString(String encodingString) {
-    if (encodingString == "UTF-8") {
+  /// The hyphen lib sets the [utf8] value in the dictionary instance to either 1 for UTF8 encoding
+  /// or 0 for ISO8859 encoding
+  static DictEncoding fromUtf8IntValue(int value) {
+    if (value == 1) {
       return DictEncoding.utf8;
-    } else if (encodingString == "ISO8859-1") {
+    } else if (value == 0) {
       return DictEncoding.iso8859;
     } else {
       throw Exception(
-        "Unsupported dictionary encoding: $encodingString. Only UTF-8 and ISO8859-1 are supported.",
+        "Unsupported dictionary encoding. Only UTF-8 and ISO8859-1 are supported.",
       );
     }
   }

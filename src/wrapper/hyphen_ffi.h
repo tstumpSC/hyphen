@@ -1,6 +1,10 @@
 #include "compat_win.h"
 #include "../hyphen_lib/hyphen.h"
 
+#ifdef __EMSCRIPTEN__
+#include "web_helper.c"
+#endif
+
 #ifndef HYPHEN_FFI_H
 #define HYPHEN_FFI_H
 

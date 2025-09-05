@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hyphen/src/ffi/hyphen_ffi.dart';
+import 'package:hyphen/src/utils.dart';
 
 import '../../../utils/mock_allocator.dart';
 import '../../../utils/mock_bindings.dart';
@@ -21,10 +22,14 @@ void main() {
       path,
       mockBindings,
       calloc,
+      DictEncoding.iso8859,
     );
+    expect(mockBindings.lastLoadedPath?.endsWith(".dic"), true);
     expect(
-      mockBindings.lastLoadedPath,
-      "${Directory.systemTemp.path}/hyph.dic",
+      mockBindings.lastLoadedPath?.startsWith(
+        "${Directory.systemTemp.path}/hyph",
+      ),
+      true,
     );
 
     final loadedFile = File(mockBindings.lastLoadedPath!);
@@ -42,6 +47,7 @@ void main() {
         'test/assets/test_dictionary.dic',
         mockBindings,
         calloc,
+        DictEncoding.iso8859,
       );
 
       final result = hy.hnjHyphenate2('Funktioniert', separator: '=');
@@ -56,6 +62,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       calloc,
+      DictEncoding.iso8859,
     );
 
     expect(() => hy.hnjHyphenate2("test"), throwsException);
@@ -69,6 +76,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       mockAlloc,
+      DictEncoding.iso8859,
     );
 
     hy.hnjHyphenate2('abcdef');
@@ -84,6 +92,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       mockAlloc,
+      DictEncoding.iso8859,
     );
 
     hy.hnjHyphenate2('abcdef');
@@ -102,6 +111,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       mockAlloc,
+      DictEncoding.iso8859,
     );
 
     expect(() => hy.hnjHyphenate2('abcdef'), throwsException);
@@ -119,6 +129,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       mockAlloc,
+      DictEncoding.iso8859,
     );
 
     hy.dispose();
@@ -133,6 +144,7 @@ void main() {
       'test/assets/test_dictionary.dic',
       mockBindings,
       mockAlloc,
+      DictEncoding.iso8859,
     );
 
     hy.dispose();
