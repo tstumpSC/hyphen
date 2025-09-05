@@ -5,8 +5,8 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
-import 'package:hyphen/src/utils.dart';
 
+import '../utils.dart';
 import 'dynamic_library_loader.dart';
 import 'hyphen_ffi_bindings_generated.dart';
 
@@ -22,12 +22,14 @@ import 'hyphen_ffi_bindings_generated.dart';
 ///     [resolveLibrarySpec], useful for CI or custom builds.
 ///
 /// * **Hyphenation**
-///   – [hnjHyphenate2] calls `hyphen_hyphenate2`.
-///   – [hnjHyphenate3] calls `hyphen_hyphenate3` with tunable `lhmin`,
+///   - [hyphenate] calls `hnj_hyphen_hyphenate2` or `hnj_hyphen_hyphenate3`, depending on whether
+///     or not you pass one of the additional parameters (`lhmin`, `rhmin`, `clhmin`, `crhmin`).
+///   – [hnjHyphenate2] calls `hnj_hyphen_hyphenate2`.
+///   – [hnjHyphenate3] calls `hnj_hyphen_hyphenate3` with tunable `lhmin`,
 ///     `rhmin`, `clhmin`, `crhmin` parameters.
 ///   – Both allocate scratch buffers, invoke the C API, then free memory.
 ///   – Raw hyphenation marks (0/1 bytes or ASCII '0'/'1') are normalized
-///     through [HyphenUtils.applyHyphenationMarks] to insert separators
+///     through [HyphenUtils.applyHyphenationMarksLegacy] to insert separators
 ///     (default `"="`) into the original text.
 ///
 /// * **Memory management**
@@ -45,7 +47,7 @@ import 'hyphen_ffi_bindings_generated.dart';
 /// ### Example
 /// ```dart
 /// final hyphen = await Hyphen.fromDictionaryPath('assets/hyph_en_US.dic');
-/// final result = hyphen.hnjHyphenate2('hyphenation');
+/// final result = hyphen.hyphenate('hyphenation');
 /// print(result); // e.g. "hy-phen-ation"
 /// hyphen.dispose();
 /// ```
@@ -133,10 +135,30 @@ class Hyphen {
     return file.path;
   }
 
+  /// Hyphenates [text] using either the `hnj_hyphen_hyphenate2` or the `hnj_hyphen_hyphenate3` API.
+  /// Returns the hyphenated text parts as a [List<String>]
+  List<String> hyphenate(
+    String text, {
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
+  }) {
+    final hyphenationMarks = _getHyphenationMarks(
+      text: text,
+      lhmin: lhmin,
+      rhmin: rhmin,
+      clhmin: clhmin,
+      crhmin: crhmin,
+    );
+
+    return HyphenUtils.applyHyphenationMarks(text, hyphenationMarks);
+  }
+
   /// Hyphenates [text] using the legacy `hnj_hyphen_hyphenate2` API.
   /// Inserts [separator] at allowed break positions.
   String hnjHyphenate2(String text, {String separator = "="}) =>
-      _hnjHyphenateInternal(text: text, separator: separator);
+      _hnjHyphenateLegacy(text: text, separator: separator);
 
   /// Hyphenates [text] using the extended `hnj_hyphen_hyphenate3` API.
   /// Allows tuning [lhmin], [rhmin], [clhmin], [crhmin] for min word lengths.
@@ -147,31 +169,52 @@ class Hyphen {
     int rhmin = 3,
     int clhmin = 2,
     int crhmin = 3,
-  }) => _hnjHyphenateInternal(
+  }) => _hnjHyphenateLegacy(
     text: text,
     separator: separator,
-    useV3: true,
     lhmin: lhmin,
     rhmin: rhmin,
     clhmin: clhmin,
     crhmin: crhmin,
   );
 
-  /// Internal helper that performs the actual hyphenation call.
-  ///
-  /// - Allocates all required native buffers.
-  /// - Invokes either `hyphen_hyphenate2` or `hyphen_hyphenate3`.
-  /// - Translates the returned hyphenation marks into a Dart string with
-  ///   [separator] inserted at allowed positions.
-  /// - Ensures all allocated buffers are freed (even on error).
-  String _hnjHyphenateInternal({
+  /// Retrieves the hyphenation marks and passes them into [HyphenUtils.applyHyphenationMarksLegacy]
+  /// to add the separators
+  String _hnjHyphenateLegacy({
     required String text,
     required String separator,
-    bool useV3 = false,
     int lhmin = 2,
     int rhmin = 3,
     int clhmin = 2,
     int crhmin = 3,
+  }) {
+    final hyphenationMarks = _getHyphenationMarks(
+      text: text,
+      lhmin: lhmin,
+      rhmin: rhmin,
+      clhmin: clhmin,
+      crhmin: crhmin,
+    );
+
+    return HyphenUtils.applyHyphenationMarksLegacy(
+      text,
+      hyphenationMarks,
+      separator,
+    );
+  }
+
+  /// Internal helper that performs the actual hyphenation call.
+  ///
+  /// - Allocates all required native buffers.
+  /// - Invokes either `hnj_hyphen_hyphenate2` or `hnj_hyphen_hyphenate3`.
+  /// - Returns the hyphenation marks that indicate where to insert hyphens
+  /// - Ensures all allocated buffers are freed (even on error).
+  List<int> _getHyphenationMarks({
+    required String text,
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
   }) {
     final bytes =
         (_dictEncoding == DictEncoding.utf8)
@@ -191,6 +234,9 @@ class Hyphen {
     final wordPtr = wordBuf.cast<Char>();
     final wordLen = bytes.length;
 
+    final useV3 =
+        lhmin != null || rhmin != null || clhmin != null || crhmin != null;
+
     try {
       final result =
           useV3
@@ -199,10 +245,10 @@ class Hyphen {
                 wordPtr,
                 wordLen,
                 hyphens.cast<Char>(),
-                lhmin,
-                rhmin,
-                clhmin,
-                crhmin,
+                lhmin ?? 0,
+                rhmin ?? 0,
+                clhmin ?? 0,
+                crhmin ?? 0,
               )
               : _bindings.hyphen_hyphenate2(
                 _hyphenDict,
@@ -212,9 +258,7 @@ class Hyphen {
               );
 
       if (result == 0) {
-        final marks = hyphens.asTypedList(wordLen);
-        final out = HyphenUtils.applyHyphenationMarks(text, marks, separator);
-        return out;
+        return List.from(hyphens.asTypedList(wordLen));
       } else {
         throw Exception("Hyphenation failed with code $result");
       }

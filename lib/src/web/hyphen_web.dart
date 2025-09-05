@@ -22,6 +22,8 @@ import 'js_runtime/loader/js_runtime_loader_facade.dart';
 ///   – If the native load returns `0`, an [InitializationException] is thrown.
 ///
 /// * **Hyphenation**
+///   - [hyphenate] calls `hnj_hyphen_hyphenate2` or `hnj_hyphen_hyphenate3`, depending on whether
+///     or not you pass one of the additional parameters (`lhmin`, `rhmin`, `clhmin`, `crhmin`).
 ///   – [hnjHyphenate2] calls `hyphen_hyphenate2`.
 ///   – [hnjHyphenate3] calls `hyphen_hyphenate3` with tunable parameters
 ///     (`lhmin`, `rhmin`, `clhmin`, `crhmin`).
@@ -29,7 +31,7 @@ import 'js_runtime/loader/js_runtime_loader_facade.dart';
 ///     API, then free them afterward.
 ///   – Raw hyphenation marks are read back from the WASM heap as ASCII bytes
 ///     (`'0'`/`'1'`) or numeric values, then normalized by
-///     [HyphenUtils.applyHyphenationMarks] to insert the chosen separator.
+///     [HyphenUtils.applyHyphenationMarksLegacy] to insert the chosen separator.
 ///
 /// * **Memory management**
 ///   – Uses the runtime’s `malloc` and `free` to manage heap pointers.
@@ -75,13 +77,36 @@ class Hyphen {
 
   /// Creates a [Hyphen] with a provided [JsHyphenRuntime] and optional
   /// [dictPtr] for tests. Useful for running on Dart VM without a browser.
-  static Hyphen forTest(JsHyphenRuntime runtime, {int dictPtr = 1}) =>
-      Hyphen._(runtime, dictPtr, DictEncoding.iso8859);
+  static Hyphen forTest(
+    JsHyphenRuntime runtime, {
+    int dictPtr = 1,
+    DictEncoding encoding = DictEncoding.iso8859,
+  }) => Hyphen._(runtime, dictPtr, encoding);
+
+  /// Hyphenates [text] using either the `hnj_hyphen_hyphenate2` or the `hnj_hyphen_hyphenate3` API.
+  /// Returns the hyphenated text parts as a [List<String>]
+  List<String> hyphenate(
+    String text, {
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
+  }) {
+    final hyphenationMarks = _getHyphenationMarks(
+      text: text,
+      lhmin: lhmin,
+      rhmin: rhmin,
+      clhmin: clhmin,
+      crhmin: crhmin,
+    );
+
+    return HyphenUtils.applyHyphenationMarks(text, hyphenationMarks);
+  }
 
   /// Hyphenates [text] using the `hyphen_hyphenate2` API.
   /// Inserts [separator] at valid break positions.
   String hnjHyphenate2(String text, {String separator = "="}) =>
-      _hnjHyphenateInternal(text: text, separator: separator, useV3: false);
+      _hnjHyphenateLegacy(text: text, separator: separator);
 
   /// Hyphenates [text] using the extended `hnj_hyphen_hyphenate3` API.
   /// Allows tuning [lhmin], [rhmin], [clhmin], [crhmin] for min word lengths.
@@ -92,15 +117,39 @@ class Hyphen {
     int rhmin = 3,
     int clhmin = 2,
     int crhmin = 3,
-  }) => _hnjHyphenateInternal(
+  }) => _hnjHyphenateLegacy(
     text: text,
-    separator: separator,
-    useV3: true,
     lhmin: lhmin,
     rhmin: rhmin,
     clhmin: clhmin,
     crhmin: crhmin,
+    separator: separator,
   );
+
+  /// Retrieves the hyphenation marks and passes them into [HyphenUtils.applyHyphenationMarksLegacy]
+  /// to add the separators
+  String _hnjHyphenateLegacy({
+    required String text,
+    required String separator,
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
+  }) {
+    final hyphenationMarks = _getHyphenationMarks(
+      text: text,
+      lhmin: lhmin,
+      rhmin: rhmin,
+      clhmin: clhmin,
+      crhmin: crhmin,
+    );
+
+    return HyphenUtils.applyHyphenationMarksLegacy(
+      text,
+      hyphenationMarks,
+      separator,
+    );
+  }
 
   /// Internal helper that performs the actual hyphenation call.
   ///
@@ -109,17 +158,18 @@ class Hyphen {
   /// - Invokes either `hyphen_hyphenate2` or `hyphen_hyphenate3`
   ///   through the [_runtime].
   /// - Reads hyphenation marks from the WASM heap and applies them
-  ///   via [HyphenUtils.applyHyphenationMarks].
+  ///   via [HyphenUtils.applyHyphenationMarksLegacy].
   /// - Always frees heap allocations, even if the call fails.
-  String _hnjHyphenateInternal({
+  List<int> _getHyphenationMarks({
     required String text,
-    required String separator,
-    bool useV3 = false,
-    int lhmin = 2,
-    int rhmin = 3,
-    int clhmin = 2,
-    int crhmin = 3,
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
   }) {
+    final useV3 =
+        lhmin != null || rhmin != null || clhmin != null || crhmin != null;
+
     if (_dictEncoding == DictEncoding.utf8) {
       final wordSize = utf8.encode(text).length;
 
@@ -145,7 +195,7 @@ class Hyphen {
             text,
             wordSize,
             hyphensPtr,
-            if (useV3) ...[lhmin, rhmin, clhmin, crhmin],
+            if (useV3) ...[lhmin ?? 0, rhmin ?? 0, clhmin ?? 0, crhmin ?? 0],
           ],
         );
 
@@ -160,8 +210,7 @@ class Hyphen {
           if (b == 0) break; // stop at NUL
           marks.add(b);
         }
-
-        return HyphenUtils.applyHyphenationMarks(text, marks, separator);
+        return marks;
       } finally {
         _runtime.free(hyphensPtr);
       }
@@ -196,7 +245,7 @@ class Hyphen {
             wordPtr,
             wordSize,
             hyphensPtr,
-            if (useV3) ...[lhmin, rhmin, clhmin, crhmin],
+            if (useV3) ...[lhmin ?? 0, rhmin ?? 0, clhmin ?? 0, crhmin ?? 0],
           ],
         );
 
@@ -208,7 +257,7 @@ class Hyphen {
           wordSize,
           (i) => _runtime.heapAt(hyphensPtr + i),
         );
-        return HyphenUtils.applyHyphenationMarks(text, marks, separator);
+        return marks;
       } finally {
         _runtime.free(wordPtr);
         _runtime.free(hyphensPtr);

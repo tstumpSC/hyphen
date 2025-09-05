@@ -90,8 +90,8 @@ void main() {
 
     expect(
       mockAlloc.freedPointers.length,
-      mockAlloc.allocatedMemory.values.expand((v) => v).length + 2,
-    ); // +2 because we use .toNativeUtf8 twice, which we later also free
+      mockAlloc.allocatedMemory.values.expand((v) => v).length + 1,
+    ); // +1 because we use .toNativeUtf8 once, which allocates memory without using our allocator
   });
 
   test('frees all allocated buffers even when hyphenation fails', () async {
@@ -107,8 +107,8 @@ void main() {
     expect(() => hy.hnjHyphenate2('abcdef'), throwsException);
     expect(
       mockAlloc.freedPointers.length,
-      mockAlloc.allocatedMemory.values.expand((v) => v).length + 2,
-    ); // +2 because we use .toNativeUtf8 twice, which we later also free
+      mockAlloc.allocatedMemory.values.expand((v) => v).length + 1,
+    ); // +1 because we use .toNativeUtf8 once, which allocates memory without using our allocator
   });
 
   test('calls dispose when dict is not null', () async {

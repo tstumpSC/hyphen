@@ -10,6 +10,34 @@ import 'package:characters/characters.dart';
 class HyphenUtils {
   HyphenUtils._();
 
+  static List<String> applyHyphenationMarks(String text, List<int> marks) {
+    final hyphenationMarksNumeric = convertAsciiHyphenationMarksToNumeric(
+      marks,
+    );
+
+    final result = <String>[];
+    final chars = text.characters.toList();
+    final buffer = StringBuffer();
+    var i = 0;
+
+    for (final ch in chars) {
+      buffer.write(ch);
+
+      if (i < hyphenationMarksNumeric.length &&
+          (hyphenationMarksNumeric[i] & 1) == 1) {
+        result.add(buffer.toString());
+        buffer.clear();
+      }
+      i++;
+    }
+
+    if (buffer.isNotEmpty) {
+      result.add(buffer.toString());
+    }
+
+    return result;
+  }
+
   /// Applies hyphenation [marks] to [text] and returns a new string with
   /// [separator] inserted after characters whose corresponding mark is odd.
   ///
@@ -23,7 +51,7 @@ class HyphenUtils {
   /// HyphenUtils.applyHyphenationMarks('Funktioniert',
   ///   [48,48,50,49,50,56,49,54,48,48,48,48], '='); // "Funk=tio=niert"
   /// ```
-  static String applyHyphenationMarks(
+  static String applyHyphenationMarksLegacy(
     String text,
     List<int> marks,
     String separator,
@@ -33,7 +61,7 @@ class HyphenUtils {
     );
 
     final sb = StringBuffer();
-    final chars = text.characters; // handles grapheme clusters
+    final chars = text.characters;
     var i = 0;
     for (final ch in chars) {
       sb.write(ch);

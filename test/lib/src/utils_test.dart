@@ -2,9 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hyphen/src/utils.dart';
 
 void main() {
-  group('applyHyphenationMarks', () {
+  group('applyHyphenationMarksLegacy', () {
     test('correctly applies hyphenation pattern', () async {
-      String result = HyphenUtils.applyHyphenationMarks("Funktioniert", [
+      String result = HyphenUtils.applyHyphenationMarksLegacy("Funktioniert", [
         0,
         0,
         2,
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('correctly puts separator', () async {
-      String result = HyphenUtils.applyHyphenationMarks("Funktioniert", [
+      String result = HyphenUtils.applyHyphenationMarksLegacy("Funktioniert", [
         0,
         0,
         2,
@@ -39,6 +39,27 @@ void main() {
       ], "-");
 
       expect(result, "Funk-tio-niert");
+    });
+  });
+
+  group('applyHyphenationMarks', () {
+    test('correctly splits into string parts', () {
+      List<String> result = HyphenUtils.applyHyphenationMarks("Funktioniert", [
+        0,
+        0,
+        2,
+        1,
+        2,
+        8,
+        1,
+        6,
+        0,
+        0,
+        0,
+        0,
+      ]);
+
+      expect(result, ["Funk", "tio", "niert"]);
     });
   });
 

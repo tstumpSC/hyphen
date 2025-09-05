@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hyphen/src/utils.dart';
 import 'package:hyphen/src/web/hyphen_web.dart';
 import 'package:hyphen/src/web/js_runtime/js_runtime.dart';
 
@@ -47,13 +48,43 @@ class FakeRuntime implements JsHyphenRuntime {
 }
 
 void main() {
-  test('applies hyphenation marks (ASCII input)', () {
+  test('applies hyphenation marks (ISO8859 encoding)', () {
+    final wordToTest = "Funktioniert";
+
+    final rt = FakeRuntime();
+    // ASCII: 0,0,2,1,2,8,1,6,0,0,0,0 at base 1000
+    rt.preload(1000 + wordToTest.length + 1, [
+      48,
+      48,
+      50,
+      49,
+      50,
+      56,
+      49,
+      54,
+      48,
+      48,
+      48,
+      48,
+    ]);
+    final hy = Hyphen.forTest(rt, dictPtr: 123);
+
+    final out = hy.hnjHyphenate2(wordToTest, separator: '=');
+    expect(out, 'Funk=tio=niert');
+
+    // wordSize=12 → malloc(20)
+    expect(rt.mallocCalls, containsAll([12 + 8]));
+  });
+
+  test('applies hyphenation marks (UTF-8 encoding)', () {
+    final wordToTest = "Funktioniert";
+
     final rt = FakeRuntime();
     // ASCII: 0,0,2,1,2,8,1,6,0,0,0,0 at base 1000
     rt.preload(1000, [48, 48, 50, 49, 50, 56, 49, 54, 48, 48, 48, 48]);
-    final hy = Hyphen.forTest(rt, dictPtr: 123);
+    final hy = Hyphen.forTest(rt, dictPtr: 123, encoding: DictEncoding.utf8);
 
-    final out = hy.hnjHyphenate2('Funktioniert', separator: '=');
+    final out = hy.hnjHyphenate2(wordToTest, separator: '=');
     expect(out, 'Funk=tio=niert');
 
     // wordSize=12 → malloc(20)
@@ -68,7 +99,7 @@ void main() {
     expect(rt.ccallCalls, contains('hyphen_hyphenate2'));
   });
 
-  test('frees allocated buffers on success', () {
+  test('frees allocated buffers on success (ISO8859 encoding)', () {
     final rt = FakeRuntime();
     rt.preload(1000, List.filled(20, 0)); // ensure NULs
     final hy = Hyphen.forTest(rt, dictPtr: 1);
@@ -76,12 +107,33 @@ void main() {
     hy.hnjHyphenate2('abcdef');
     final p1 = 1000;
     expect(rt.freeCalls, containsAll([p1]));
+    expect(rt.freeCalls.length, 2);
+  });
+
+  test('frees allocated buffers on success (UTF-8 encoding)', () {
+    final rt = FakeRuntime();
+    rt.preload(1000, List.filled(20, 0)); // ensure NULs
+    final hy = Hyphen.forTest(rt, dictPtr: 1, encoding: DictEncoding.utf8);
+
+    hy.hnjHyphenate2('abcdef');
+    final p1 = 1000;
+    expect(rt.freeCalls, containsAll([p1]));
     expect(rt.freeCalls.length, 1);
   });
 
-  test('frees allocated buffers when failing', () {
+  test('frees allocated buffers when failing (ISO8859 encoding)', () {
     final rt = FakeRuntime()..hyphenateRc = 7;
     final hy = Hyphen.forTest(rt, dictPtr: 1);
+
+    expect(() => hy.hnjHyphenate2('abcdef'), throwsException);
+    final p1 = 1000;
+    expect(rt.freeCalls, containsAll([p1]));
+    expect(rt.freeCalls.length, 2);
+  });
+
+  test('frees allocated buffers when failing (UTF-8 encoding)', () {
+    final rt = FakeRuntime()..hyphenateRc = 7;
+    final hy = Hyphen.forTest(rt, dictPtr: 1, encoding: DictEncoding.utf8);
 
     expect(() => hy.hnjHyphenate2('abcdef'), throwsException);
     final p1 = 1000;

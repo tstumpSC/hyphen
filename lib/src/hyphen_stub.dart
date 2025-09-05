@@ -14,15 +14,28 @@ class Hyphen {
   static Future<Hyphen> fromDictionaryPath(String assetPath) async =>
       throw UnsupportedError('Hyphen is not supported on this platform.');
 
+  /// Attempts to hyphenate [text] using either hyphenate2 or hyphenate3 rules.
+  ///
+  /// Always throws [UnsupportedError] on this platform.
+  List<String> hyphenate(
+    String text, {
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
+  }) => throw UnsupportedError('Hyphen is not supported on this platform.');
+
   /// Attempts to hyphenate [text] using hyphenate2 rules.
   ///
   /// Always throws [UnsupportedError] on this platform.
+  @Deprecated("Depcrecated in v0.2.0. Use hyphenate() instead.")
   String hnjHyphenate2(String text, {String separator = "="}) =>
       throw UnsupportedError('Hyphen is not supported on this platform.');
 
   /// Attempts to hyphenate [text] using hyphenate3 rules.
   ///
   /// Always throws [UnsupportedError] on this platform.
+  @Deprecated("Depcrecated in v0.2.0. Use hyphenate() instead.")
   String hnjHyphenate3(
     String text, {
     String separator = '=',
