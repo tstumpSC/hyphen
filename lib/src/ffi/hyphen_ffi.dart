@@ -166,10 +166,10 @@ class Hyphen {
   String _hnjHyphenateLegacy({
     required String text,
     required String separator,
-    int lhmin = 2,
-    int rhmin = 3,
-    int clhmin = 2,
-    int crhmin = 3,
+    int? lhmin,
+    int? rhmin,
+    int? clhmin,
+    int? crhmin,
   }) {
     final hyphenationMarks = _getHyphenationMarks(
       text: text,

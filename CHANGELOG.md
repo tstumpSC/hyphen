@@ -1,3 +1,18 @@
+## 0.2.0
+**Breaking changes:** 
+- Added unified API for hnjHyphenate2 and hnjHyphenate3
+- `hnjHyphenate2` → `hyphenate`
+- `hnjHyphenate3` → `hyphenate`
+- Returns List<String> instead of a single String filled with separators
+
+_Migration:_
+- `hnjHyphenate2(word)` → `hyphenate(word)`
+- `hnjHyphenate3(word, lhmin: 3, rhmin: 4)` → `hyphenate(text, lhmin: 3, rhmin: 4)`
+
+Non-breaking changes:
+- Optimized reading the dictionary encoding
+- Fixed a bug that occurred when creating multiple Hyphen instances on Web
+
 ## 0.1.4
 - Added more detailed instructions on how to obtain dictionary files
 - Removed any mentions of "Hyphenator" (which was the plugin's working title)

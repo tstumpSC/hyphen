@@ -4,10 +4,18 @@
 [![License: MIT + MPL 2.0](https://img.shields.io/badge/License-MIT%20+%20MPL--2.0-orange.svg)](#-license)
 
 **Hyphen** is a cross-platform Flutter plugin that provides high-quality word hyphenation.  
-It uses the [hunspell/hyphen](https://github.com/hunspell/hyphen) C library under the hood (via FFI) on native platforms, and a WebAssembly/JS runtime on the Web.
+It uses the [hunspell/hyphen](https://github.com/hunspell/hyphen) C library under the hood (via FFI)
+on native platforms, and a WebAssembly/JS runtime on the Web.
 
-With `Hyphen`, you can automatically insert hyphenation marks into words based on language-specific rules.
-By default, the plugin uses "=" as the separator, but you can configure it to use any custom separator you want.
+With Hyphen, you can split words into their hyphenation parts according to language-specific
+rules. The API returns a List<String> where each element is a chunk of the word between possible
+hyphenation points.
+
+---
+
+## ❗️ Breaking change in v0.2.0
+
+- See [Changelog](./CHANGELOG.md) for details
 
 ---
 
@@ -15,10 +23,9 @@ By default, the plugin uses "=" as the separator, but you can configure it to us
 
 - Works on **all Flutter platforms**: Android, iOS, macOS, Windows, Linux, Web
 - Uses battle-tested [hyphen](https://github.com/hunspell/hyphen) dictionaries
-- Two hyphenation APIs available:
-  - `hnjHyphenate2` – classic hyphenation
-  - `hnjHyphenate3` – extended API with additional options
-- Unified API – always use the same `Hyphen` class, no matter the platform
+- Combines hunspell/hyphen's two hyphenation APIs `hnj_hyphen_hyphenate2`and `hnj_hyphen_hyphenate3`
+  into a single `hyphenate` function
+- Unified API for all platforms – always use the same `Hyphen` class, no matter the platform
 
 ---
 
@@ -28,7 +35,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.1.4
+  hyphen: ^0.2.0
 ```
 
 Then run:
@@ -56,29 +63,29 @@ and other TeX distribution sources).
 
 ### 🔨 Step-by-step Example: English (US)
 
-1.  Download the pattern file
-    [`hyphen-en-us.tex`](https://satztexnik.com/tex-archive/language/hyph-utf8/tex/patterns/tex/hyph-en-us.tex)
+1. Download the pattern file
+   [`hyph-en-us.tex`](https://satztexnik.com/tex-archive/language/hyph-utf8/tex/patterns/tex/hyph-en-us.tex)
 
-2.  Run the `substrings.pl` script (from
-    [hunspell/hyphen](https://github.com/hunspell/hyphen)):
+2. Run the `substrings.pl` script (from
+   [hunspell/hyphen](https://github.com/hunspell/hyphen)):
 
-    ``` bash
-    perl substrings.pl hyphen-en-us.tex hyph_en_US.dic UTF-8
-    ```
+   ``` bash
+   perl substrings.pl hyph-en-us.tex hyph_en_US.dic UTF-8
+   ```
 
-    This generates a file called `hyph_en_US.dic`.
+   This generates a file called `hyph_en_US.dic`.
 
-3.  Add the file to your Flutter project:
+3. Add the file to your Flutter project:
 
-        assets/hyph_en_US.dic
+       assets/hyph_en_US.dic
 
-4.  Declare it in `pubspec.yaml`:
+4. Declare it in `pubspec.yaml`:
 
-    ``` yaml
-    flutter:
-      assets:
-        - assets/hyph_en_US.dic
-    ```
+   ``` yaml
+   flutter:
+     assets:
+       - assets/hyph_en_US.dic
+   ```
 
 ---
 
@@ -92,17 +99,17 @@ Future<void> main() async {
   final hyphen = await Hyphen.fromDictionaryPath('assets/hyph_en_US.dic');
 
   // Hyphenate a word
-  final result = hyphen.hnjHyphenate2('hyphenation', separator: '-');
-  print(result); // "hy-phen-ation"
+  final result = hyphen.hyphenate('hyphenation');
+  print(result); // ["hy", "phen", "ation"]
 
-  // Using the extended API
-  final result2 = hyphen.hnjHyphenate3(
+  // Using the additional parameters to define a minimum distance from the start/end of the word
+  // to the first break
+  final result2 = hyphen.hyphenate(
     'hyphenation',
-    separator: '=',
     lhmin: 3,
     rhmin: 3,
   );
-  print(result2); // "hyphen=ation"
+  print(result2); // ["hyphen", "ation"]
 }
 ```
 
@@ -121,7 +128,8 @@ Future<void> main() async {
 This package is dual-licensed:
 
 - **Plugin code** (Dart, FFI bindings and wrappers): licensed under [MIT](./LICENSE).
-- **Hyphenation engine**: incorporates code from [Hunspell/Hyphen](https://github.com/hunspell/hyphen),  
+- **Hyphenation engine**: incorporates code
+  from [Hunspell/Hyphen](https://github.com/hunspell/hyphen),
   which is licensed under the [Mozilla Public License (MPL)](./THIRD_PARTY_LICENSES.md).
 
 Hyphenation **dictionaries** come with their own licenses – check the  
