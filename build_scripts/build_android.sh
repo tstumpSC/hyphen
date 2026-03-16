@@ -60,7 +60,7 @@ for abi_spec in "${ABIS[@]}"; do
 
   # Base flags
   CFLAGS=(-fPIC -O2 -ffunction-sections -fdata-sections --sysroot="$SYSROOT" "--target=${TRIPLE}${API}")
-  LDFLAGS=(-shared -Wl,--no-undefined -Wl,--gc-sections --sysroot="$SYSROOT" "--target=${TRIPLE}${API}")
+  LDFLAGS=(-shared -Wl,-z,max-page-size=16384 -Wl,--no-undefined -Wl,--gc-sections --sysroot="$SYSROOT" "--target=${TRIPLE}${API}")
 
   # Include paths
   for inc in "${INCLUDE_DIRS[@]}"; do
