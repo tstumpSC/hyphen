@@ -1,3 +1,8 @@
+## 0.2.1
+- Added linker flags to Android build script for 16KB page size support
+- Added recompiled Android binaries with 16KB page size support
+- Minor layout fix in example project
+
 ## 0.2.0
 **Breaking changes:** 
 - Added unified API for hnjHyphenate2 and hnjHyphenate3

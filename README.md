@@ -35,7 +35,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.2.0
+  hyphen: ^0.2.1
 ```
 
 Then run:
