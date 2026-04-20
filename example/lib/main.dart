@@ -104,15 +104,19 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 hyphenationResultsUtf8 != null
-                    ? _HyphenationResultsWidget(
-                      results: hyphenationResultsUtf8!,
-                      encoding: "UTF-8",
+                    ? Expanded(
+                      child: _HyphenationResultsWidget(
+                        results: hyphenationResultsUtf8!,
+                        encoding: "UTF-8",
+                      ),
                     )
                     : CircularProgressIndicator(),
                 hyphenationResultsIso8859 != null
-                    ? _HyphenationResultsWidget(
-                      results: hyphenationResultsIso8859!,
-                      encoding: "ISO8859",
+                    ? Expanded(
+                      child: _HyphenationResultsWidget(
+                        results: hyphenationResultsIso8859!,
+                        encoding: "ISO8859",
+                      ),
                     )
                     : CircularProgressIndicator(),
               ],
@@ -143,17 +147,17 @@ class _HyphenationResultsWidget extends StatelessWidget {
         ),
         SizedBox(height: 24),
         _SingleHyphenationResultWidget(
-          title: "Hyphenated words:",
+          title: "Results:",
           hyphenatedWords: results.results,
         ),
         SizedBox(height: 16),
         _SingleHyphenationResultWidget(
-          title: "Hyphenated words legacy API 2:",
+          title: "Results legacy API 2:",
           hyphenatedWords: results.resultsLegacyApi2,
         ),
         SizedBox(height: 16),
         _SingleHyphenationResultWidget(
-          title: "Hyphenated words legacy API 3:",
+          title: "Results legacy API 3:",
           hyphenatedWords: results.resultsLegacyApi3,
         ),
       ],
