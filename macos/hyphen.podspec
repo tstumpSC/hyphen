@@ -11,9 +11,8 @@ Pod::Spec.new do |s|
 
   s.source           = { :path => '.' }
 
-  s.public_header_files = '../src/hyphen_ffi.h'
-  s.source_files = 'Classes/*.{h,m,mm,swift,c}', '../src/hyphen_ffi.h'
-  s.vendored_libraries = 'lib/libhyphen_ffi.a'
+  s.source_files = 'hyphen/Sources/hyphen/*.c'
+  s.vendored_frameworks = 'hyphen/libhyphen.xcframework'
   s.dependency 'FlutterMacOS'
 
   s.platform = :osx, '10.11'

@@ -24,6 +24,8 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
+# FVM: track .fvmrc (version pin), ignore the local SDK symlink/cache
+.fvm/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/

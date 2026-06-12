@@ -32,3 +32,6 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 build/
 build_scripts/output/
+
+# Swift Package Manager
+Package.resolved

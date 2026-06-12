@@ -12,11 +12,10 @@ Pod::Spec.new do |s|
   s.dependency       'Flutter'
 
 
-  s.vendored_frameworks = 'lib/libhyphen.xcframework'
-  s.preserve_paths      = 'lib/libhyphen.xcframework'
+  s.vendored_frameworks = 'hyphen/libhyphen.xcframework'
+  s.preserve_paths      = 'hyphen/libhyphen.xcframework'
 
-  s.public_header_files = '../src/wrapper/hyphen_ffi.h'
-  s.source_files        = 'Classes/*.{h,m,mm,swift,c}', '../src/wrapper/hyphen_ffi.h'
+  s.source_files        = 'hyphen/Sources/hyphen/*.c'
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',

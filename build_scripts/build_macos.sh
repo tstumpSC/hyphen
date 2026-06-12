@@ -36,8 +36,20 @@ lipo -create -output "$OUTPUT_LIB" \
     libhyphen_ffi_arm64.a \
     libhyphen_ffi_x86_64.a
 
+# Wrap the static lib into an XCFramework for Swift Package Manager
+# (SwiftPM .binaryTarget cannot ingest a bare .a). The same XCFramework is
+# also consumed by the CocoaPods podspec.
+OUTPUT_XCFRAMEWORK="build_scripts/output/macos/libhyphen.xcframework"
+echo "Creating XCFramework $OUTPUT_XCFRAMEWORK..."
+rm -rf "$OUTPUT_XCFRAMEWORK"
+xcodebuild -create-xcframework \
+    -library "$OUTPUT_LIB" -headers "$FFI_DIR" \
+    -output "$OUTPUT_XCFRAMEWORK"
+
 # Cleanup step
 echo "Cleaning up intermediate files..."
 rm -f hyphen_ffi_*.o hyphen_*.o hnjalloc_*.o libhyphen_ffi_arm64.a libhyphen_ffi_x86_64.a
 
-echo "✅ Done. Output: $OUTPUT_LIB"
+echo "✅ Done. Outputs:"
+echo "   $OUTPUT_LIB"
+echo "   $OUTPUT_XCFRAMEWORK  (copy into macos/hyphen/ for SwiftPM + CocoaPods)"

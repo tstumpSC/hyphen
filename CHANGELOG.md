@@ -1,3 +1,7 @@
+## 0.3.0
+- Added Swift Package Manager (SPM) support for iOS and macOS, alongside the existing CocoaPods integration
+- Requires Flutter `>=3.41.0` (raised from `>=3.3.0`) for SPM support
+
 ## 0.2.1
 - Added linker flags to Android build script for 16KB page size support
 - Added recompiled Android binaries with 16KB page size support

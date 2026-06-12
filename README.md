@@ -26,6 +26,7 @@ hyphenation points.
 - Combines hunspell/hyphen's two hyphenation APIs `hnj_hyphen_hyphenate2`and `hnj_hyphen_hyphenate3`
   into a single `hyphenate` function
 - Unified API for all platforms – always use the same `Hyphen` class, no matter the platform
+- Supports both **Swift Package Manager** and **CocoaPods** on iOS and macOS
 
 ---
 
@@ -35,7 +36,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.2.1
+  hyphen: ^0.3.0
 ```
 
 Then run:
@@ -118,6 +119,7 @@ Future<void> main() async {
 ## 🖥 Platform Notes
 
 - **Android/iOS/macOS/Linux/Windows:** Uses the native hyphen lib via FFI.
+- **iOS/macOS:** Ships both a Swift Package Manager manifest and a CocoaPods podspec; either integration works. Requires Flutter `>=3.41.0`.
 - **Web:** Uses a WASM build of the hyphen lib via `hyphen.js`.
 - On all platforms, you must provide your own `.dic` file.
 
