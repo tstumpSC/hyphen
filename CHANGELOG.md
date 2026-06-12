@@ -1,6 +1,8 @@
+## 0.3.1
+- Restored the Flutter SDK constraint to `>=3.3.0`. The `>=3.41.0` bump in 0.3.0 was unnecessary: adding a `Package.swift` is additive, and Flutter versions without Swift Package Manager support simply fall back to CocoaPods.
+
 ## 0.3.0
 - Added Swift Package Manager (SPM) support for iOS and macOS, alongside the existing CocoaPods integration
-- Requires Flutter `>=3.41.0` (raised from `>=3.3.0`) for SPM support
 
 ## 0.2.1
 - Added linker flags to Android build script for 16KB page size support

@@ -36,7 +36,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.3.0
+  hyphen: ^0.3.1
 ```
 
 Then run:
@@ -119,7 +119,7 @@ Future<void> main() async {
 ## 🖥 Platform Notes
 
 - **Android/iOS/macOS/Linux/Windows:** Uses the native hyphen lib via FFI.
-- **iOS/macOS:** Ships both a Swift Package Manager manifest and a CocoaPods podspec; either integration works. Requires Flutter `>=3.41.0`.
+- **iOS/macOS:** Ships both a Swift Package Manager manifest and a CocoaPods podspec; either integration works. Flutter uses SPM on SPM-capable versions and falls back to CocoaPods on older ones.
 - **Web:** Uses a WASM build of the hyphen lib via `hyphen.js`.
 - On all platforms, you must provide your own `.dic` file.
 
