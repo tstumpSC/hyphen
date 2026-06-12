@@ -54,3 +54,4 @@ rm -rf \
   libhyphen.xcframework
 
 echo "✅ Built XCFramework at: $OUTPUT_XCFRAMEWORK"
+echo "   (copy into ios/hyphen/ for SwiftPM + CocoaPods)"
