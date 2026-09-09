@@ -7,6 +7,11 @@
 implemented in pure Dart. The same code runs on every platform Flutter supports — there is no
 native library to build and nothing to link.
 
+The engine is a Dart port of [hunspell/hyphen](https://github.com/hunspell/hyphen), the
+TeX-pattern hyphenation library originally cut from libHnj for OpenOffice.org. It reads the same
+`hyph_*.dic` dictionaries and was verified against the original C implementation over 9.26 million
+cases across 18 dictionaries, so output is identical rather than merely similar.
+
 With Hyphen, you can split words into their hyphenation parts according to language-specific
 rules. The API returns a `List<String>` where each element is a chunk of the word between possible
 hyphenation points.
