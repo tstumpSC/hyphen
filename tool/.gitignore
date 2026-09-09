@@ -1,0 +1,6 @@
+libhyphen_ffi.dylib
+corpus/*
+!corpus/synth/
+goldens/
+.dart_tool/
+pubspec.lock

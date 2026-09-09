@@ -3,30 +3,32 @@
 [![pub package](https://img.shields.io/pub/v/hyphen.svg)](https://pub.dev/packages/hyphen)
 [![License: MIT + MPL 2.0](https://img.shields.io/badge/License-MIT%20+%20MPL--2.0-orange.svg)](#-license)
 
-**Hyphen** is a cross-platform Flutter plugin that provides high-quality word hyphenation.  
-It uses the [hunspell/hyphen](https://github.com/hunspell/hyphen) C library under the hood (via FFI)
-on native platforms, and a WebAssembly/JS runtime on the Web.
+**Hyphen** is a cross-platform Flutter package that provides high-quality word hyphenation,
+implemented in pure Dart. The same code runs on every platform Flutter supports — there is no
+native library to build and nothing to link.
 
 With Hyphen, you can split words into their hyphenation parts according to language-specific
-rules. The API returns a List<String> where each element is a chunk of the word between possible
+rules. The API returns a `List<String>` where each element is a chunk of the word between possible
 hyphenation points.
 
 ---
 
-## ❗️ Breaking change in v0.2.0
+## ❗️ Breaking change in v0.4.0
 
-- See [Changelog](./CHANGELOG.md) for details
+- The `dart:ffi` bindings, the Emscripten JS/WASM runtime, the native build trees, and the
+  `Hyphen.fromDictionaryPathWithBindingsAndAllocator` constructor are all gone. See the
+  [Changelog](./CHANGELOG.md) for details.
 
 ---
 
 ## ✨ Features
 
-- Works on **all Flutter platforms**: Android, iOS, macOS, Windows, Linux, Web
+- Works on **all Flutter platforms**: Android, iOS, macOS, Windows, Linux, Web — one pure-Dart
+  implementation, no platform-specific builds
 - Uses battle-tested [hyphen](https://github.com/hunspell/hyphen) dictionaries
-- Combines hunspell/hyphen's two hyphenation APIs `hnj_hyphen_hyphenate2`and `hnj_hyphen_hyphenate3`
+- Combines hunspell/hyphen's two hyphenation APIs `hnj_hyphen_hyphenate2` and `hnj_hyphen_hyphenate3`
   into a single `hyphenate` function
 - Unified API for all platforms – always use the same `Hyphen` class, no matter the platform
-- Supports both **Swift Package Manager** and **CocoaPods** on iOS and macOS
 
 ---
 
@@ -36,7 +38,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  hyphen: ^0.3.1
+  hyphen: ^0.4.0
 ```
 
 Then run:
@@ -114,14 +116,30 @@ Future<void> main() async {
 }
 ```
 
+### Loading a dictionary
+
+From a Flutter asset:
+
+```dart
+final hyphen = await Hyphen.fromDictionaryPath('assets/hyph_en_US.dic');
+```
+
+From bytes, with no asset bundle — usable in plain Dart, tests and CLI tools:
+
+```dart
+import 'dart:io';
+
+final hyphen = Hyphen.fromDictionaryBytes(File('hyph_en_US.dic').readAsBytesSync());
+```
+
 ---
 
 ## 🖥 Platform Notes
 
-- **Android/iOS/macOS/Linux/Windows:** Uses the native hyphen lib via FFI.
-- **iOS/macOS:** Ships both a Swift Package Manager manifest and a CocoaPods podspec; either integration works. Flutter uses SPM on SPM-capable versions and falls back to CocoaPods on older ones.
-- **Web:** Uses a WASM build of the hyphen lib via `hyphen.js`.
-- On all platforms, you must provide your own `.dic` file.
+Hyphen is a pure-Dart package. It runs identically on Android, iOS, macOS, Windows, Linux and
+Web — there is no native library to build, no platform-specific plugin implementation, and
+nothing to link. On every platform, you must still provide your own `.dic` file; see
+Dictionaries above.
 
 ---
 
@@ -129,12 +147,13 @@ Future<void> main() async {
 
 This package is dual-licensed:
 
-- **Plugin code** (Dart, FFI bindings and wrappers): licensed under [MIT](./LICENSE).
-- **Hyphenation engine**: incorporates code
-  from [Hunspell/Hyphen](https://github.com/hunspell/hyphen),
-  which is licensed under the [Mozilla Public License (MPL)](./THIRD_PARTY_LICENSES.md).
+- **Package code** (the public API, dictionary loading and hyphenation engine): licensed under
+  [MIT](./LICENSE).
+- A small number of files are a Dart port of [Hunspell/Hyphen](https://github.com/hunspell/hyphen)
+  C sources and remain covered by that project's license. See
+  [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md) for exactly which files and terms.
 
-Hyphenation **dictionaries** come with their own licenses – check the  
+Hyphenation **dictionaries** come with their own licenses – check the
 [hunspell/hyphen repo](https://github.com/hunspell/hyphen) before redistributing.
 
 ---

@@ -1,0 +1,12 @@
+name: hyphen_reference_harness
+description: Throwaway differential-test harness. Never published.
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  ffi: ^2.1.4
+  characters: ^1.4.0
+dev_dependencies:
+  test: ^1.31.0

@@ -1,44 +1,62 @@
 # Third-Party Licenses
 
-This package (`hyphen`) includes code from third-party projects.  
+This package (`hyphen`) contains code derived from a third-party project.
 Your obligations depend on which parts you use or redistribute.
 
 ---
 
-## Hunspell/Hyphen C Library
+## Hunspell/Hyphen
 
-This package bundles parts of the [Hunspell/Hyphen](https://github.com/hunspell/hyphen) library,  
-which is licensed under the **Mozilla Public License, version 2.0 (MPL-2.0)**.
+Parts of this package are derived from the
+[Hunspell/Hyphen](https://github.com/hunspell/hyphen) library.
 
-> Source: https://github.com/hunspell/hyphen  
-> License: https://www.mozilla.org/en-US/MPL/2.0/
+> Source: https://github.com/hunspell/hyphen
 
-The following files and build artifacts are derived from Hyphen and are therefore covered by the MPL 2.0:
+Upstream offers Hyphen under a **GPL 2.0 / LGPL 2.1 / MPL 1.1 tri-license**:
+its `COPYING` file permits use under the GNU General Public License version 2
+or later, the GNU Lesser General Public License version 2.1 or later, **or**
+the Mozilla Public License version 1.1 or later.
 
-- **Hyphen library source files**
-    - `src/hyphen_lib/*.c`, `src/hyphen_lib/*.h`
+**This package elects the MPL branch of that grant, at version 2.0**
+(permitted by the "version 1.1 or later" wording). MPL 2.0 applies at file
+granularity: only the files listed below are Covered Software. Per MPL 2.0
+§3.3, the remainder of the package is distributed as a Larger Work under the
+MIT license — see [LICENSE](./LICENSE).
 
-- **Android**
-    - `android/src/jniLibs/*/libhyphen_ffi.so`
+### Covered files
 
-- **iOS**
-    - `ios/lib/libhyphen.xcframework/*/libhyphen.a`
+The following files are a hand transliteration of Hyphen's C sources
+(`hyphen.c`, `hyphen.h`) into Dart and are therefore Covered Software under
+the MPL 2.0. Each carries the Exhibit A notice in its header.
 
-- **macOS**
-    - `macos/lib/libhyphen_ffi.a`
+- `lib/src/hyphen_dict.dart` — port of `struct _HyphenDict` / `_HyphenState` /
+  `_HyphenTrans` plus `hnj_get_state` and `hnj_add_trans`
+- `lib/src/dict_loader.dart` — port of `hnj_hyphen_load_line`,
+  `hnj_hyphen_load_file` and `hnj_strchomp`
+- `lib/src/engine.dart` — port of `hnj_hyphen_hyph_`, `hnj_hyphen_norm`,
+  `hnj_hyphen_hyphword`, `hnj_hyphen_lhmin`, `hnj_hyphen_rhmin`,
+  `hnj_ligature`, `hnj_hyphen_hyphenate2` and `hnj_hyphen_hyphenate3`
 
-- **Linux**
-    - `linux/*/libhyphen_ffi.so`
+A verbatim copy of Hyphen's C sources is retained at `tool/reference_c/` for
+regenerating the differential-test goldens. It is excluded from published
+package archives via `.pubignore` and is likewise Covered Software, under the
+same election, when redistributed from this repository.
 
-- **Web**
-    - `web/assets/hyphen.wasm`
-    - `web/assets/hyphen.js`
+No compiled artifacts derived from Hyphen are distributed with this package.
 
-- **Windows**
-    - `hyphen_ffi.dll` (produced at build time from the bundled Hyphen sources)
+### Hyphenation dictionaries
 
-Those files and their compiled forms remain under the MPL 2.0 license. A copy
-of the MPL 2.0 license is provided below.
+Hyphenation pattern dictionaries (`hyph_*.dic`) are **not** bundled with this
+package; you supply your own at runtime. They carry their own licenses,
+independent of the ones above. Note in particular that upstream's `COPYING`
+flags the American English patterns (`ushyphmax.tex` by Gerard D.C. Kuiken,
+the basis of `hyph_en_US.dic`) as freely redistributable but *not*
+MPL/LGPL-compatible: copying and distribution require that the copyright
+notice be preserved. Check the license of any dictionary you ship.
+
+---
+
+A copy of the MPL 2.0 license text follows.
 
 ---
 

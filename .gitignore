@@ -35,3 +35,8 @@ build_scripts/output/
 
 # Swift Package Manager
 Package.resolved
+# Superpowers SDD scratch (ledger, briefs, review packages)
+.superpowers/
+
+# Superpowers SDD artefacts (specs, plans) — kept locally, not published
+docs/superpowers/

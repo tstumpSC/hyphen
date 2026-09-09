@@ -1,0 +1,13 @@
+# lang  kind   repo-path
+de      hyph   de/hyph_de_DE.dic
+de      words  de/de_DE_frami.dic
+en      hyph   en/hyph_en_US.dic
+en      words  en/en_US.dic
+hu      hyph   hu_HU/hyph_hu_HU.dic
+hu      words  hu_HU/hu_HU.dic
+nl      hyph   nl_NL/hyph_nl_NL.dic
+nl      words  nl_NL/nl_NL.dic
+sv      hyph   sv_SE/hyph_sv.dic
+sv      words  sv_SE/dictionaries/sv_SE.dic
+ca      hyph   ca/dictionaries/hyph_ca.dic
+ca      words  ca/dictionaries/ca.dic

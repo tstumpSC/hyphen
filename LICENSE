@@ -1,15 +1,16 @@
-# License for Hyphen (Flutter Plugin)
+# License for Hyphen
 
 This package is licensed under the MIT License (see full text below).
 
-Note: This package also contains third-party code from
-[Hunspell/Hyphen](https://github.com/hunspell/hyphen),
-which is licensed under the Mozilla Public License 2.0 (MPL-2.0).
-That code is covered by its own license, reproduced in
-[THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md).
+Note: This package also contains code derived from
+[Hunspell/Hyphen](https://github.com/hunspell/hyphen), which its authors offer
+under a GPL 2.0 / LGPL 2.1 / MPL 1.1 tri-license. This package elects the MPL
+branch of that grant, at version 2.0. Those files are covered by their own
+license, reproduced in [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md),
+which also lists exactly which files they are.
 
-The MIT license applies only to the Dart FFI bindings and plugin code
-authored for this package.
+The MIT license applies to the rest of the package — the public API, the
+mark-application utilities and the example app.
 
 ---
 

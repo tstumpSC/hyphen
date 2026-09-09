@@ -1,0 +1,5 @@
+tool/
+docs/
+build_scripts/
+test/golden/
+test/golden_test.dart

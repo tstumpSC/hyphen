@@ -1,21 +1,15 @@
 PODS:
   - Flutter (1.0.0)
-  - hyphen (0.0.1):
-    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - hyphen (from `.symlinks/plugins/hyphen/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  hyphen:
-    :path: ".symlinks/plugins/hyphen/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  hyphen: 95b16d6ad0c47ad0b8f320a2a1785ebeb9a51399
 
 PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
 
